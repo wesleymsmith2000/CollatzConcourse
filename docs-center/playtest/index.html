@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collatz Concourse Playtest Checklist</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span>Playtest</span>
+          <strong>Collatz Concourse</strong>
+        </div>
+        <nav aria-label="Documentation sections">
+          <a href="../index.html">Overview</a>
+          <a href="../code-documentation/index.html">Code Documentation</a>
+          <a href="../gameplay-documentation/index.html">Gameplay Help</a>
+          <a class="active" href="./index.html">Playtest Checklist</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <p class="eyebrow">First MVP scenarios</p>
+          <h1>Playtest Checklist</h1>
+          <p class="lead">Use these prompts to validate whether the current loop is clear, balanced enough, and tactically legible.</p>
+        </section>
+
+        <section>
+          <h2>Smoke Test</h2>
+          <ul class="rule-list">
+            <li>Start a 2-player game and advance both players through at least three turns.</li>
+            <li>Confirm the startup pulse loop visibly moves through <code>1 -> 4 -> 2 -> 1</code>.</li>
+            <li>Confirm captures do not divide factors out of the pulse.</li>
+            <li>Confirm excess resonance is reduced at end of turn.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Action Scenarios</h2>
+          <ul class="rule-list">
+            <li>Use a forced jump and check that the cost equals the pre-jump pulse.</li>
+            <li>Discard a captured prime for both addition and subtraction.</li>
+            <li>Try an illegal subtraction that would reduce pulse below 1.</li>
+            <li>Attack using a shared prime, then confirm the same prime cannot initiate another attack that turn.</li>
+            <li>Create equal pulses and resolve Prime Theft, checking that the turn ends in win, loss, and tie outcomes.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Questions</h2>
+          <ul class="rule-list">
+            <li>Does the forced jump cost feel too expensive in early turns?</li>
+            <li>Does resonance retention create useful pressure or too much slowdown?</li>
+            <li>Are exact pulse collisions common enough for Prime Theft to matter?</li>
+            <li>Should capture choice happen before or after resonance gain in future variants?</li>
+            <li>Is the 10 distinct / 200 Harmony victory target reachable in a satisfying game length?</li>
+          </ul>
+        </section>
+
+        <p class="footer">Record observations in future markdown notes or issue tracker entries as playtests accumulate.</p>
+      </main>
+    </div>
+  </body>
+</html>

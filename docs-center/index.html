@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collatz Concourse Docs Center</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span>Docs Center</span>
+          <strong>Collatz Concourse</strong>
+        </div>
+        <nav aria-label="Documentation sections">
+          <a class="active" href="./index.html">Overview</a>
+          <a href="./code-documentation/index.html">Code Documentation</a>
+          <a href="./gameplay-documentation/index.html">Gameplay Help</a>
+          <a href="./playtest/index.html">Playtest Checklist</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <p class="eyebrow">Developer and player reference</p>
+          <h1>Collatz Concourse Docs Center</h1>
+          <p class="lead">
+            A static documentation space following the Primordial Cipher approach: code architecture, player-facing rules,
+            and a practical playtest checklist live beside the app.
+          </p>
+        </section>
+
+        <section class="card-grid" aria-label="Documentation areas">
+          <article class="card">
+            <h2>Code Documentation</h2>
+            <p>Module map, engine flow, state model, and reuse notes from Primordial Cipher.</p>
+            <p><a href="./code-documentation/index.html">Open code docs</a></p>
+          </article>
+          <article class="card">
+            <h2>Gameplay Help</h2>
+            <p>Player-facing rules for pulse movement, captures, resonance, combat, and victory.</p>
+            <p><a href="./gameplay-documentation/index.html">Open gameplay docs</a></p>
+          </article>
+          <article class="card">
+            <h2>Playtest Checklist</h2>
+            <p>Short scenario prompts for validating the first local hot-seat MVP.</p>
+            <p><a href="./playtest/index.html">Open checklist</a></p>
+          </article>
+        </section>
+
+        <section>
+          <h2>Documentation Convention</h2>
+          <ul class="rule-list">
+            <li>Keep code-oriented material under <code>docs-center/code-documentation/</code>.</li>
+            <li>Keep player-facing help under <code>docs-center/gameplay-documentation/</code>.</li>
+            <li>Keep playtest scripts and observation prompts under <code>docs-center/playtest/</code>.</li>
+            <li>Update these pages alongside engine changes when rules move.</li>
+          </ul>
+        </section>
+
+        <p class="footer">This docs scaffold is intentionally static so it can be opened directly or migrated later.</p>
+      </main>
+    </div>
+  </body>
+</html>

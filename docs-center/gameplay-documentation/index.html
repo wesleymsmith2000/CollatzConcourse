@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collatz Concourse Gameplay Help</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span>Gameplay Help</span>
+          <strong>Collatz Concourse</strong>
+        </div>
+        <nav aria-label="Documentation sections">
+          <a href="../index.html">Overview</a>
+          <a href="../code-documentation/index.html">Code Documentation</a>
+          <a class="active" href="./index.html">Gameplay Help</a>
+          <a href="../playtest/index.html">Playtest Checklist</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <p class="eyebrow">Player guide</p>
+          <h1>Gameplay Documentation</h1>
+          <p class="lead">
+            Collatz Concourse is a competitive number-race game where pulse movement reveals prime factors, captured primes
+            build Harmony, and shared factors create combat.
+          </p>
+        </section>
+
+        <section>
+          <h2>Turn Procedure</h2>
+          <ol class="rule-list">
+            <li>Start the active player's turn.</li>
+            <li>Roll 1d6 and gain that much resonance.</li>
+            <li>Resolve the mandatory Collatz pulse step: even pulses halve, odd pulses become <code>3N + 1</code>.</li>
+            <li>Capture one prime value from the new pulse if one is available.</li>
+            <li>Use optional actions: forced jump, pulse modification, normal attack, or Prime Theft.</li>
+            <li>End the turn, apply resonance retention, check victory, and pass to the next player.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Resources</h2>
+          <ul class="rule-list">
+            <li><strong>Pulse:</strong> The player's current positive integer position.</li>
+            <li><strong>Captured Primes:</strong> A multiset of captured prime factors. Duplicates count for Harmony.</li>
+            <li><strong>Resonance:</strong> Spendable energy for forced jumps and attacks.</li>
+            <li><strong>Harmony:</strong> Sum of all captured primes, including duplicates.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Combat</h2>
+          <ol class="rule-list">
+            <li>An attack requires at least one shared prime value in attacker and defender pulses.</li>
+            <li>The attacker chooses a shared initiating prime and pays resonance equal to that prime.</li>
+            <li>Each prime value may initiate only one attack per turn.</li>
+            <li>Assault Harmony Dice count attacker factor occurrences that also appear in the defender pulse.</li>
+            <li>Shield Dissonance Dice count defender factor occurrences absent from the attacker pulse.</li>
+            <li>Each die rerolls on 2 or 3, succeeds on 4 through 6, and fails on 1.</li>
+            <li>The victor chooses a shared prime to divide out of the defeated pulse. Ties change no pulse.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Prime Theft</h2>
+          <p>
+            If pulses match exactly and both players have captured primes, the attacker may declare Prime Theft instead of
+            a normal attack. The combat roll is normal, but the victor steals one captured prime from the loser. A tie steals
+            nothing. Prime Theft always forces the attacker's turn to end.
+          </p>
+        </section>
+
+        <section>
+          <h2>Victory</h2>
+          <div class="callout">
+            A player wins at end of turn when they have at least 10 distinct captured prime values and at least 200 Harmony.
+          </div>
+        </section>
+
+        <p class="footer">Use this page as the current MVP player reference while playtesting adjusts balance.</p>
+      </main>
+    </div>
+  </body>
+</html>

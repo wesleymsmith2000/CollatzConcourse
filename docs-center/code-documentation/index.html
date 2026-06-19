@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collatz Concourse Code Documentation</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span>Code Docs</span>
+          <strong>Collatz Concourse</strong>
+        </div>
+        <nav aria-label="Documentation sections">
+          <a href="../index.html">Overview</a>
+          <a class="active" href="./index.html">Code Documentation</a>
+          <a href="../gameplay-documentation/index.html">Gameplay Help</a>
+          <a href="../playtest/index.html">Playtest Checklist</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <p class="eyebrow">Engine-first architecture</p>
+          <h1>Code Documentation</h1>
+          <p class="lead">
+            React renders state and submits actions; game rules live in pure TypeScript modules under <code>src/engine/</code>.
+          </p>
+        </section>
+
+        <section>
+          <h2>Module Map</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Module</th><th>Responsibility</th><th>Reuse Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>src/engine/math.ts</code></td><td>Prime factorization, multisets, Harmony, shared primes, dice pool counts, integer log2.</td><td>Adapted from Primordial Cipher prime math concepts.</td></tr>
+                <tr><td><code>src/engine/dice.ts</code></td><td>d6 rollers, seeded/sequence test rollers, combat die scoring.</td><td>Uses Primordial Cipher's dependency-injected dice pattern.</td></tr>
+                <tr><td><code>src/engine/game.ts</code></td><td>Action dispatcher, turn flow, captures, optional actions, combat choices, end turn.</td><td>Primary contract for UI and future AI or multiplayer commands.</td></tr>
+                <tr><td><code>src/engine/combat.ts</code></td><td>Attack eligibility, Prime Theft availability, combat roll resolution.</td><td>Preserves repeated prime multiplicities.</td></tr>
+                <tr><td><code>src/engine/resonance.ts</code></td><td>Retention threshold and excess-halving rule.</td><td>Isolated so playtest balance can change safely.</td></tr>
+                <tr><td><code>src/App.tsx</code></td><td>Local hot-seat UI over engine state.</td><td>Should stay rule-thin.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>Dependency Overview</h2>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart LR
+  UI[React UI] --> EngineIndex[src/engine/index.ts]
+  EngineIndex --> Game[src/engine/game.ts]
+  Game --> Combat[src/engine/combat.ts]
+  Game --> Math[src/engine/math.ts]
+  Game --> Resonance[src/engine/resonance.ts]
+  Game --> Collatz[src/engine/collatz.ts]
+  Combat --> Dice[src/engine/dice.ts]
+  Combat --> Math
+  State[src/engine/state.ts] --> Types[src/engine/types.ts]
+            </pre>
+          </div>
+        </section>
+
+        <section>
+          <h2>Future Team Modes</h2>
+          <div class="callout">
+            MVP ownership is per-player. Future variants should split pulse ownership, resonance ownership,
+            captured-factor ownership, and victory ownership before shared team pools are added.
+          </div>
+        </section>
+
+        <p class="footer">Keep this page current when engine module boundaries change.</p>
+      </main>
+    </div>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "dark", securityLevel: "loose" });
+    </script>
+  </body>
+</html>

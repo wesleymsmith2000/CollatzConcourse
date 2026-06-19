@@ -1,0 +1,219 @@
+:root {
+  color-scheme: dark;
+  --bg: #111315;
+  --panel: #1a1f24;
+  --panel-2: #222a31;
+  --text: #f2f5f2;
+  --muted: #aeb9b0;
+  --line: #35414a;
+  --accent: #8fd36d;
+  --accent-2: #f2c14e;
+  --danger: #f08f83;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #111315 0%, #17201d 48%, #201c24 100%);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--accent);
+}
+
+.docs-shell {
+  display: grid;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: rgba(17, 19, 21, 0.78);
+  border-right: 1px solid var(--line);
+  height: 100vh;
+  padding: 2rem 1.25rem;
+  position: sticky;
+  top: 0;
+}
+
+.brand {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 2rem;
+}
+
+.brand span,
+.eyebrow {
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar nav a {
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.65rem 0.75rem;
+  text-decoration: none;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: var(--panel-2);
+}
+
+.content {
+  max-width: 78rem;
+  padding: 3rem clamp(1.25rem, 3vw, 4rem) 5rem;
+}
+
+.hero {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 4vw, 4.1rem);
+  margin: 0.35rem 0 1rem;
+}
+
+h2 {
+  border-top: 1px solid var(--line);
+  font-size: 1.65rem;
+  margin: 2.5rem 0 1rem;
+  padding-top: 1.8rem;
+}
+
+h3 {
+  color: var(--accent-2);
+}
+
+p {
+  max-width: 72ch;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.card,
+.callout,
+.diagram,
+.table-wrap {
+  background: rgba(26, 31, 36, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.card,
+.callout {
+  padding: 1.2rem;
+}
+
+.card h2,
+.card h3 {
+  border: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.callout {
+  border-left: 4px solid var(--accent);
+}
+
+.warning {
+  border-left-color: var(--danger);
+}
+
+.diagram,
+.table-wrap {
+  overflow-x: auto;
+}
+
+.diagram {
+  padding: 1rem;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 42rem;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--accent-2);
+}
+
+code {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+
+pre {
+  background: #0d1012;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.rule-list li,
+.module-list li {
+  margin-bottom: 0.55rem;
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 800px) {
+  .docs-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    height: auto;
+    position: static;
+  }
+
+  .sidebar nav {
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  }
+}

@@ -41,6 +41,10 @@ select {
   font: inherit;
 }
 
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
 button {
   align-items: center;
   cursor: pointer;
@@ -210,6 +214,22 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.top-actions .icon-button {
+  justify-content: center;
+  min-width: 2.5rem;
+  padding-inline: 0.65rem;
+}
+
+.cost-chip {
+  border: 1px solid rgba(255, 211, 79, 0.42);
+  border-radius: 999px;
+  color: var(--accent-2);
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.22rem 0.4rem;
+  white-space: nowrap;
 }
 
 .status-band {
@@ -474,6 +494,184 @@ dd {
   padding: 0.65rem 0.75rem;
 }
 
+.jukebox {
+  background:
+    linear-gradient(rgba(8, 13, 20, 0.86), rgba(8, 13, 20, 0.9)),
+    var(--sheet-panels) center / cover no-repeat,
+    rgba(8, 13, 20, 0.95);
+  border: 1px solid rgba(182, 108, 255, 0.62);
+  border-radius: 4px;
+  box-shadow: inset 0 0 34px rgba(182, 108, 255, 0.12), 0 0 28px rgba(57, 215, 255, 0.08);
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.jukebox-header,
+.now-playing,
+.jukebox-controls,
+.track-list {
+  position: relative;
+  z-index: 1;
+}
+
+.jukebox-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.jukebox-header h2 {
+  color: var(--text);
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  margin: 0.2rem 0 0;
+  text-transform: uppercase;
+}
+
+.jukebox-header img {
+  border: 1px solid rgba(57, 215, 255, 0.18);
+  height: 3.8rem;
+  object-fit: cover;
+  object-position: 70% 12%;
+  opacity: 0.42;
+  width: min(30vw, 18rem);
+}
+
+.now-playing {
+  align-items: center;
+  border: 1px solid rgba(57, 215, 255, 0.36);
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0.75rem;
+}
+
+.now-playing strong {
+  display: block;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.now-playing span,
+.track-time {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.album-mark,
+.album-dot {
+  background: rgba(57, 215, 255, 0.14);
+  border: 1px solid currentColor;
+  box-shadow: 0 0 18px currentColor;
+}
+
+.album-mark {
+  clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
+  height: 3rem;
+  width: 3rem;
+}
+
+.album-dot {
+  clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
+  display: inline-block;
+  height: 1.3rem;
+  width: 1.3rem;
+}
+
+.cyan {
+  color: var(--accent);
+}
+
+.gold {
+  color: var(--accent-2);
+}
+
+.violet {
+  color: var(--violet);
+}
+
+.red {
+  color: var(--danger);
+}
+
+.green {
+  color: var(--green);
+}
+
+.progress-track {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(57, 215, 255, 0.2);
+  height: 0.55rem;
+}
+
+.progress-track span {
+  background: linear-gradient(90deg, var(--accent), var(--violet));
+  box-shadow: 0 0 18px var(--accent);
+  display: block;
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.jukebox-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.jukebox-controls button {
+  justify-content: center;
+  min-width: 2.5rem;
+  padding-inline: 0.6rem;
+}
+
+.jukebox-controls .play-button {
+  border-color: var(--accent);
+  min-width: 3rem;
+}
+
+.toggle-active {
+  color: var(--accent-2);
+}
+
+.jukebox-controls input {
+  min-width: 9rem;
+}
+
+.track-list {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.track-list button {
+  align-items: center;
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  justify-content: start;
+  text-align: left;
+}
+
+.track-list button > span {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.track-list button strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track-list button.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 @media (max-width: 900px) {
   .top-bar,
   .workbench,
@@ -484,5 +682,14 @@ dd {
   .league-mark,
   .event-mark {
     display: none;
+  }
+
+  .jukebox-header img,
+  .track-time {
+    display: none;
+  }
+
+  .now-playing {
+    grid-template-columns: auto minmax(0, 1fr);
   }
 }

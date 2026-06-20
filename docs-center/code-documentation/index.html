@@ -42,7 +42,9 @@
                 <tr><td><code>src/engine/dice.ts</code></td><td>d6 rollers, seeded/sequence test rollers, combat die scoring.</td><td>Uses Primordial Cipher's dependency-injected dice pattern.</td></tr>
                 <tr><td><code>src/engine/game.ts</code></td><td>Action dispatcher, turn flow, captures, optional actions, combat choices, end turn.</td><td>Primary contract for UI and future AI or multiplayer commands.</td></tr>
                 <tr><td><code>src/engine/combat.ts</code></td><td>Attack eligibility, Prime Theft availability, combat roll resolution.</td><td>Preserves repeated prime multiplicities.</td></tr>
-                <tr><td><code>src/engine/resonance.ts</code></td><td>Retention threshold and excess-halving rule.</td><td>Isolated so playtest balance can change safely.</td></tr>
+                <tr><td><code>src/engine/race.ts</code></td><td>Sprint, Run, and Marathon Harmony targets.</td><td>Serializable race configuration.</td></tr>
+                <tr><td><code>src/engine/resonance.ts</code></td><td>Owned-prime threshold and excess-halving rule.</td><td>Isolated so playtest balance can change safely.</td></tr>
+                <tr><td><code>src/ui/soundEffects.ts</code></td><td>Action-to-sound routing, audio caching, and sound-effects mute state.</td><td>Kept in the UI so engine rules remain deterministic.</td></tr>
                 <tr><td><code>src/App.tsx</code></td><td>Local hot-seat UI over engine state.</td><td>Should stay rule-thin.</td></tr>
               </tbody>
             </table>

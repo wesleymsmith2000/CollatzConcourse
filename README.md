@@ -32,7 +32,9 @@ npm.cmd run build
 - Each player tracks a pulse, captured prime multiset, resonance, and attack primes used this turn.
 - A turn rolls 1d6 resonance, performs one mandatory Collatz pulse step, captures one available factor when possible, then allows optional actions.
 - Optional actions include forced `3N + 1` jumps, prime-fueled pulse modification, normal attacks, Prime Theft, and ending the turn.
-- Victory requires at least 10 distinct captured prime values and at least 200 Harmony, where Harmony is the sum of captured primes including duplicates.
+- Forced `3N + 1` jumps cost `floor(log2(pulse))` resonance; prime-fueled modifications cost `floor(log2(prime))` resonance.
+- At end of turn, resonance above `floor(log2(owned prime tokens))` decays by 50%, rounded down.
+- Victory requires at least 10 distinct captured prime values and the selected Harmony target: Sprint 1,000, Run 50,000, or Marathon 1,000,000.
 
 ## Architecture Notes
 
@@ -49,7 +51,7 @@ No Primordial Cipher files were modified.
 
 ## Unresolved Assumptions
 
-- Excess resonance retention uses `threshold + floor((resonance - threshold) / 2)`.
+- Owned prime count includes duplicate captured tokens when calculating resonance retention.
 - The standard turn auto-captures a selected factor immediately after the mandatory pulse step in the UI.
 - Prime Theft is only available when both involved players have at least one captured prime.
 - Future team modes should separate pulse, resonance, captured-prime, and victory ownership, but the MVP uses per-player ownership.

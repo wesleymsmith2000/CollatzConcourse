@@ -1,5 +1,6 @@
 export const visualAssets = {
   styleConcept: "/assets/GameStyleConcept.png",
+  jukeboxConcept: "/assets/JukeboxUIStyleConcept.png",
   uiAssetKit: "/assets/spritesheets/UI_AssetKit.png",
   uiAssetSheet: "/assets/spritesheets/UI_AssetSheet.png",
   uiIcons: "/assets/spritesheets/UI_Icons.png",

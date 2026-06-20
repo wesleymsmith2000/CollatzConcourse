@@ -41,8 +41,8 @@
         <section>
           <h2>Action Scenarios</h2>
           <ul class="rule-list">
-            <li>Use a forced jump and check that the cost equals the pre-jump pulse.</li>
-            <li>Discard a captured prime for both addition and subtraction.</li>
+            <li>Use a forced jump and check that the cost is <code>floor(log2(pulse))</code> before the jump.</li>
+            <li>Discard captured primes for both addition and subtraction, checking that each costs <code>floor(log2(prime))</code>.</li>
             <li>Try an illegal subtraction that would reduce pulse below 1.</li>
             <li>Attack using a shared prime, then confirm the same prime cannot initiate another attack that turn.</li>
             <li>Create equal pulses and resolve Prime Theft, checking that the turn ends in win, loss, and tie outcomes.</li>
@@ -52,11 +52,11 @@
         <section>
           <h2>Questions</h2>
           <ul class="rule-list">
-            <li>Does the forced jump cost feel too expensive in early turns?</li>
-            <li>Does resonance retention create useful pressure or too much slowdown?</li>
+            <li>Do logarithmic forced-jump and prime-modification costs constrain repeated growth without stalling early turns?</li>
+            <li>Does prime-count-based resonance decay create useful pressure or too much slowdown?</li>
             <li>Are exact pulse collisions common enough for Prime Theft to matter?</li>
             <li>Should capture choice happen before or after resonance gain in future variants?</li>
-            <li>Is the 10 distinct / 200 Harmony victory target reachable in a satisfying game length?</li>
+            <li>Do Sprint (1,000), Run (50,000), and Marathon (1,000,000) produce meaningfully different game lengths?</li>
           </ul>
         </section>
 

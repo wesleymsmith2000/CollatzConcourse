@@ -6,12 +6,16 @@ import {
   distinctPrimeCount,
   distinctPrimes,
   factorize,
+  floorLog2,
   harmonyScore,
   removePrime,
   sharedPrimeValues
 } from "./math";
+import { RACE_HARMONY_TARGETS } from "./race";
 import { applyResonanceRetention } from "./resonance";
 import type { GameAction, GameEvent, GameState, PendingCapture, PlayerId, PlayerState, TurnPhase } from "./types";
+
+export const VICTORY_DISTINCT_PRIME_TARGET = 10;
 
 export function applyAction(state: GameState, action: GameAction): GameState {
   if (state.winnerId && action.type !== "startTurn") return state;
@@ -50,16 +54,28 @@ export function availableCapturePrimes(player: PlayerState): number[] {
   );
 }
 
-export function hasVictory(player: PlayerState): boolean {
-  return distinctPrimeCount(player.capturedPrimes) >= 10 && harmonyScore(player.capturedPrimes) >= 200;
+export function hasVictory(player: PlayerState, harmonyTarget = RACE_HARMONY_TARGETS.sprint): boolean {
+  return (
+    distinctPrimeCount(player.capturedPrimes) >= VICTORY_DISTINCT_PRIME_TARGET &&
+    harmonyScore(player.capturedPrimes) >= harmonyTarget
+  );
+}
+
+export function forcedJumpResonanceCost(pulse: number): number {
+  return floorLog2(pulse);
+}
+
+export function primeModificationResonanceCost(prime: number): number {
+  return floorLog2(prime);
 }
 
 export function legalForcedJump(player: PlayerState): boolean {
-  return player.resonance >= player.pulse;
+  return player.resonance >= forcedJumpResonanceCost(player.pulse);
 }
 
 export function legalPulseModifications(player: PlayerState): Array<{ prime: number; operation: "add" | "subtract" }> {
   return distinctPrimes(player.capturedPrimes).flatMap((prime) => {
+    if (player.resonance < primeModificationResonanceCost(prime)) return [];
     const options: Array<{ prime: number; operation: "add" | "subtract" }> = [{ prime, operation: "add" }];
     if (player.pulse - prime >= 1) options.push({ prime, operation: "subtract" });
     return options;
@@ -112,13 +128,14 @@ function capturePendingPrime(state: GameState, prime: number): GameState {
 function forcedJump(state: GameState, capturePrime?: number): GameState {
   if (!canUseOptionalAction(state)) return state;
   const player = activePlayer(state);
+  const cost = forcedJumpResonanceCost(player.pulse);
   if (!legalForcedJump(player)) {
-    return log(state, "OPTIONAL_ACTIONS", `${player.name} lacks ${player.pulse} resonance for a forced jump.`);
+    return log(state, "OPTIONAL_ACTIONS", `${player.name} lacks ${cost} resonance for a forced jump.`);
   }
   const oldPulse = player.pulse;
   const nextPulse = forcedJumpPulse(oldPulse);
-  let nextState = updatePlayer(state, player.id, { ...player, resonance: player.resonance - oldPulse, pulse: nextPulse });
-  nextState = log(nextState, "OPTIONAL_ACTIONS", `${player.name} paid ${oldPulse} resonance and forced ${oldPulse} to ${nextPulse}.`);
+  let nextState = updatePlayer(state, player.id, { ...player, resonance: player.resonance - cost, pulse: nextPulse });
+  nextState = log(nextState, "OPTIONAL_ACTIONS", `${player.name} paid ${cost} resonance and forced ${oldPulse} to ${nextPulse}.`);
   return resolveOptionalCapture(nextState, player.id, "forced-jump", capturePrime);
 }
 
@@ -133,12 +150,17 @@ function modifyPulse(
   if ((player.capturedPrimes[prime] ?? 0) <= 0) {
     return log(state, "OPTIONAL_ACTIONS", `${player.name} does not have a captured ${prime} to discard.`);
   }
+  const cost = primeModificationResonanceCost(prime);
+  if (player.resonance < cost) {
+    return log(state, "OPTIONAL_ACTIONS", `${player.name} needs ${cost} resonance to use captured prime ${prime}.`);
+  }
   const nextPulse = operation === "add" ? player.pulse + prime : player.pulse - prime;
   if (nextPulse < 1) {
     return log(state, "OPTIONAL_ACTIONS", `${player.name} cannot reduce pulse below 1.`);
   }
   const nextPlayer = {
     ...player,
+    resonance: player.resonance - cost,
     pulse: nextPulse,
     capturedPrimes: removePrime(player.capturedPrimes, prime)
   };
@@ -146,7 +168,7 @@ function modifyPulse(
   nextState = log(
     nextState,
     "OPTIONAL_ACTIONS",
-    `${player.name} discarded a captured ${prime} and changed ${player.pulse} to ${nextPulse}.`
+    `${player.name} paid ${cost} resonance, discarded a captured ${prime}, and changed ${player.pulse} to ${nextPulse}.`
   );
   return resolveOptionalCapture(nextState, player.id, "pulse-modification", capturePrime);
 }
@@ -264,13 +286,13 @@ function stealPrime(state: GameState, prime: number): GameState {
 
 function endTurn(state: GameState): GameState {
   const player = activePlayer(state);
-  const retained = applyResonanceRetention(player.resonance, player.pulse);
+  const retained = applyResonanceRetention(player.resonance, player.capturedPrimes);
   const retainedPlayer = { ...player, resonance: retained, usedAttackPrimesThisTurn: [] };
   let nextState = updatePlayer(state, player.id, retainedPlayer);
   if (retained !== player.resonance) {
     nextState = log(nextState, "RESONANCE_RETENTION", `${player.name} retained ${retained} resonance after excess was halved.`);
   }
-  const winner = hasVictory(retainedPlayer) ? retainedPlayer : undefined;
+  const winner = hasVictory(retainedPlayer, state.harmonyTarget) ? retainedPlayer : undefined;
   if (winner) {
     return log({ ...nextState, winnerId: winner.id, phase: "VICTORY_CHECK" }, "VICTORY_CHECK", `${winner.name} reached ${harmonyScore(winner.capturedPrimes)} Harmony with ${distinctPrimeCount(winner.capturedPrimes)} distinct primes and won.`);
   }

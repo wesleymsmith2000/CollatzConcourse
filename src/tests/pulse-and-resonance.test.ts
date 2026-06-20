@@ -5,7 +5,10 @@ import {
   applyResonanceRetention,
   createInitialState,
   createSequenceD6,
+  forcedJumpResonanceCost,
   harmonyScore,
+  primeModificationResonanceCost,
+  resonanceRetentionThreshold,
   standardPulseStep
 } from "../engine";
 
@@ -36,7 +39,7 @@ describe("captures", () => {
 });
 
 describe("forced jump", () => {
-  it("costs the pre-jump pulse and grants one capture opportunity", () => {
+  it("costs floor(log2(pulse)) and grants one capture opportunity", () => {
     let state = createInitialState(2);
     state = {
       ...state,
@@ -46,15 +49,22 @@ describe("forced jump", () => {
 
     const jumped = applyAction(state, { type: "forcedJump" });
     expect(jumped.players[0].pulse).toBe(7);
-    expect(jumped.players[0].resonance).toBe(0);
+    expect(jumped.players[0].resonance).toBe(1);
     expect(jumped.pendingCapture?.choices).toEqual([7]);
+  });
+
+  it("scales cost at binary pulse boundaries", () => {
+    expect(forcedJumpResonanceCost(1)).toBe(0);
+    expect(forcedJumpResonanceCost(7)).toBe(2);
+    expect(forcedJumpResonanceCost(8)).toBe(3);
+    expect(forcedJumpResonanceCost(31)).toBe(4);
   });
 
   it("fails when resonance is insufficient", () => {
     const state = {
       ...createInitialState(2),
       phase: "OPTIONAL_ACTIONS" as const,
-      players: [{ ...createInitialState(2).players[0], pulse: 4, resonance: 3 }, createInitialState(2).players[1]]
+      players: [{ ...createInitialState(2).players[0], pulse: 4, resonance: 1 }, createInitialState(2).players[1]]
     };
     const jumped = applyAction(state, { type: "forcedJump" });
     expect(jumped.players[0].pulse).toBe(4);
@@ -68,15 +78,40 @@ describe("pulse modification", () => {
       ...base,
       phase: "OPTIONAL_ACTIONS" as const,
       players: [
-        { ...base.players[0], pulse: 14, capturedPrimes: addPrime({}, 2) },
+        { ...base.players[0], pulse: 14, resonance: 1, capturedPrimes: addPrime({}, 2) },
         base.players[1]
       ]
     };
 
     const modified = applyAction(state, { type: "modifyPulse", prime: 2, operation: "subtract" });
     expect(modified.players[0].pulse).toBe(12);
+    expect(modified.players[0].resonance).toBe(0);
     expect(modified.players[0].capturedPrimes).toEqual({});
     expect(modified.pendingCapture?.choices).toEqual([2, 3]);
+  });
+
+  it("costs floor(log2(prime))", () => {
+    expect(primeModificationResonanceCost(2)).toBe(1);
+    expect(primeModificationResonanceCost(3)).toBe(1);
+    expect(primeModificationResonanceCost(5)).toBe(2);
+    expect(primeModificationResonanceCost(17)).toBe(4);
+  });
+
+  it("rejects modification when resonance is insufficient", () => {
+    const base = createInitialState(2);
+    const state = {
+      ...base,
+      phase: "OPTIONAL_ACTIONS" as const,
+      players: [
+        { ...base.players[0], pulse: 14, resonance: 1, capturedPrimes: addPrime({}, 5) },
+        base.players[1]
+      ]
+    };
+
+    const modified = applyAction(state, { type: "modifyPulse", prime: 5, operation: "subtract" });
+    expect(modified.players[0].pulse).toBe(14);
+    expect(modified.players[0].resonance).toBe(1);
+    expect(modified.players[0].capturedPrimes).toEqual({ 5: 1 });
   });
 
   it("rejects subtraction below 1", () => {
@@ -85,7 +120,7 @@ describe("pulse modification", () => {
       ...base,
       phase: "OPTIONAL_ACTIONS" as const,
       players: [
-        { ...base.players[0], pulse: 2, capturedPrimes: addPrime({}, 5) },
+        { ...base.players[0], pulse: 2, resonance: 2, capturedPrimes: addPrime({}, 5) },
         base.players[1]
       ]
     };
@@ -96,11 +131,18 @@ describe("pulse modification", () => {
 });
 
 describe("resonance retention", () => {
-  it("retains threshold and halves excess downward", () => {
-    expect(applyResonanceRetention(0, 1)).toBe(0);
-    expect(applyResonanceRetention(3, 2)).toBe(2);
-    expect(applyResonanceRetention(8, 4)).toBe(5);
-    expect(applyResonanceRetention(9, 8)).toBe(6);
+  it("uses floor(log2(owned prime tokens)) as its threshold", () => {
+    expect(resonanceRetentionThreshold({})).toBe(0);
+    expect(resonanceRetentionThreshold({ 2: 1 })).toBe(0);
+    expect(resonanceRetentionThreshold({ 2: 2, 3: 1 })).toBe(1);
+    expect(resonanceRetentionThreshold({ 2: 3, 3: 2 })).toBe(2);
+  });
+
+  it("retains the threshold and halves excess downward", () => {
+    expect(applyResonanceRetention(0, {})).toBe(0);
+    expect(applyResonanceRetention(3, { 2: 2 })).toBe(2);
+    expect(applyResonanceRetention(8, { 2: 4 })).toBe(5);
+    expect(applyResonanceRetention(9, { 2: 8 })).toBe(6);
   });
 });
 

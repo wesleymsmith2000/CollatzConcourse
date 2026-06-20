@@ -48,8 +48,17 @@
           <ul class="rule-list">
             <li><strong>Pulse:</strong> The player's current positive integer position.</li>
             <li><strong>Captured Primes:</strong> A multiset of captured prime factors. Duplicates count for Harmony.</li>
-            <li><strong>Resonance:</strong> Spendable energy for forced jumps and attacks.</li>
+            <li><strong>Resonance:</strong> Spendable energy for forced jumps, pulse modifications, and attacks.</li>
             <li><strong>Harmony:</strong> Sum of all captured primes, including duplicates.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Resonance Costs</h2>
+          <ul class="rule-list">
+            <li>A forced <code>3N + 1</code> jump costs <code>floor(log2(pulse))</code> resonance, calculated before the jump.</li>
+            <li>A prime-fueled pulse modification costs <code>floor(log2(prime))</code> resonance and discards that prime token.</li>
+            <li>At end of turn, count all owned prime tokens, including duplicates. Resonance above <code>floor(log2(token count))</code> decays by 50%, rounded down.</li>
           </ul>
         </section>
 
@@ -78,7 +87,8 @@
         <section>
           <h2>Victory</h2>
           <div class="callout">
-            A player wins at end of turn when they have at least 10 distinct captured prime values and at least 200 Harmony.
+            A player wins at end of turn when they have at least 10 distinct captured prime values and reach the selected
+            Harmony target: Sprint 1,000, Run 50,000, or Marathon 1,000,000.
           </div>
         </section>
 

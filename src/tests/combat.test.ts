@@ -72,6 +72,7 @@ describe("attacks", () => {
       rollDie: createSequenceD6([4])
     });
     expect(attacked.pendingCombatChoice).toBeUndefined();
+    expect(attacked.players[0].resonance).toBe(0);
     expect(attacked.players[0].pulse).toBe(2);
     expect(attacked.players[1].pulse).toBe(6);
   });

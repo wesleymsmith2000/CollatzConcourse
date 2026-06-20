@@ -1,5 +1,6 @@
 export type PlayerId = string;
 export type PrimeMultiset = Record<number, number>;
+export type RaceLength = "sprint" | "run" | "marathon";
 
 export type TurnPhase =
   | "TURN_START"
@@ -30,6 +31,8 @@ export interface GameEvent {
 
 export interface GameState {
   players: PlayerState[];
+  raceLength: RaceLength;
+  harmonyTarget: number;
   activePlayerIndex: number;
   phase: TurnPhase;
   turn: number;

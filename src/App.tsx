@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { RotateCcw, Volume2, VolumeX } from "lucide-react";
 import {
   activePlayer,
   applyAction,
@@ -10,27 +10,45 @@ import {
   distinctPrimes,
   eligibleAttackPrimes,
   formatFactorization,
+  forcedJumpResonanceCost,
   harmonyScore,
   legalForcedJump,
   legalPulseModifications,
+  primeModificationResonanceCost,
+  RACE_HARMONY_TARGETS,
   sharedPrimeValues,
+  VICTORY_DISTINCT_PRIME_TARGET,
   type GameState,
-  type PlayerState
+  type PlayerState,
+  type RaceLength
 } from "./engine";
 import { visualAssets } from "./ui/assets";
+import { Jukebox } from "./ui/Jukebox";
+import { useSoundEffects } from "./ui/soundEffects";
 
 function App() {
   const [playerCount, setPlayerCount] = useState(2);
-  const [state, setState] = useState<GameState>(() => createInitialState(2));
+  const [raceLength, setRaceLength] = useState<RaceLength>("sprint");
+  const [state, setState] = useState<GameState>(() => createInitialState(2, undefined, "sprint"));
+  const stateRef = useRef(state);
+  const soundEffects = useSoundEffects();
   const current = activePlayer(state);
 
   function dispatch(action: Parameters<typeof applyAction>[1]) {
-    setState((previous) => applyAction(previous, action));
+    const previous = stateRef.current;
+    const next = applyAction(previous, action);
+    stateRef.current = next;
+    setState(next);
+    soundEffects.playTransition(previous, next, action);
   }
 
-  function resetGame(count = playerCount) {
+  function resetGame(count = playerCount, race = raceLength) {
     setPlayerCount(count);
-    setState(createInitialState(count));
+    setRaceLength(race);
+    const next = createInitialState(count, undefined, race);
+    stateRef.current = next;
+    setState(next);
+    soundEffects.play("arrival");
   }
 
   const canAct = !state.pendingCapture && !state.pendingCombatChoice && !state.forcedTurnEnd && state.phase === "OPTIONAL_ACTIONS";
@@ -61,8 +79,27 @@ function App() {
             <option value={3}>3 players</option>
             <option value={4}>4 players</option>
           </select>
+          <select
+            aria-label="Race length"
+            value={raceLength}
+            onChange={(event) => resetGame(playerCount, event.target.value as RaceLength)}
+          >
+            <option value="sprint">Sprint - {RACE_HARMONY_TARGETS.sprint.toLocaleString()}</option>
+            <option value="run">Run - {RACE_HARMONY_TARGETS.run.toLocaleString()}</option>
+            <option value="marathon">Marathon - {RACE_HARMONY_TARGETS.marathon.toLocaleString()}</option>
+          </select>
           <button type="button" onClick={() => resetGame()}>
             <RotateCcw size={16} /> Reset
+          </button>
+          <button
+            type="button"
+            className="icon-button"
+            aria-label={soundEffects.muted ? "Enable sound effects" : "Mute sound effects"}
+            aria-pressed={soundEffects.muted}
+            title={soundEffects.muted ? "Enable sound effects" : "Mute sound effects"}
+            onClick={() => soundEffects.setMuted(!soundEffects.muted)}
+          >
+            {soundEffects.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </div>
       </section>
@@ -88,7 +125,13 @@ function App() {
 
       <section className="player-grid">
         {state.players.map((player, index) => (
-          <PlayerPanel key={player.id} player={player} active={player.id === current.id} index={index} />
+          <PlayerPanel
+            key={player.id}
+            player={player}
+            active={player.id === current.id}
+            index={index}
+            harmonyTarget={state.harmonyTarget}
+          />
         ))}
       </section>
 
@@ -150,6 +193,7 @@ function App() {
             <>
               <button type="button" disabled={!legalForcedJump(current)} onClick={() => dispatch({ type: "forcedJump" })}>
                 <ActionGlyph name="jump" /> Forced 3N+1 Jump
+                <span className="cost-chip">{forcedJumpResonanceCost(current.pulse)} res</span>
               </button>
 
               <div className="choice-block">
@@ -163,9 +207,14 @@ function App() {
                     >
                       <ActionGlyph name={option.operation === "add" ? "add" : "subtract"} />
                       {option.operation === "add" ? "+" : "-"} {option.prime}
+                      <span className="cost-chip">{primeModificationResonanceCost(option.prime)} res</span>
                     </button>
                   ))}
-                  {legalPulseModifications(current).length === 0 && <p className="muted">No captured primes available.</p>}
+                  {legalPulseModifications(current).length === 0 && (
+                    <p className="muted">
+                      No affordable captured primes available.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -193,11 +242,23 @@ function App() {
           </ol>
         </div>
       </section>
+
+      <Jukebox />
     </main>
   );
 }
 
-function PlayerPanel({ player, active, index }: { player: PlayerState; active: boolean; index: number }) {
+function PlayerPanel({
+  player,
+  active,
+  index,
+  harmonyTarget
+}: {
+  player: PlayerState;
+  active: boolean;
+  index: number;
+  harmonyTarget: number;
+}) {
   const captured = useMemo(() => distinctPrimes(player.capturedPrimes), [player.capturedPrimes]);
   const factorChoices = availableCapturePrimes(player);
   return (
@@ -223,7 +284,7 @@ function PlayerPanel({ player, active, index }: { player: PlayerState; active: b
         </div>
         <div>
           <dt>Distinct</dt>
-          <dd>{distinctPrimeCount(player.capturedPrimes)} / 10</dd>
+          <dd>{distinctPrimeCount(player.capturedPrimes)} / {VICTORY_DISTINCT_PRIME_TARGET}</dd>
         </div>
       </dl>
       <div className="token-area">
@@ -238,6 +299,7 @@ function PlayerPanel({ player, active, index }: { player: PlayerState; active: b
       <div className="mini-row">
         <span>Capture choices: {factorChoices.join(", ") || "none"}</span>
         <span>Used attacks: {player.usedAttackPrimesThisTurn.join(", ") || "none"}</span>
+        <span>Victory: {harmonyScore(player.capturedPrimes)} / {harmonyTarget.toLocaleString()} Harmony</span>
       </div>
     </article>
   );
@@ -276,6 +338,7 @@ function AttackControls({
                     }
                   >
                     <ActionGlyph name="attack" /> {prime}
+                    <span className="cost-chip">{prime} res</span>
                   </button>
                 ))}
                 {theft &&
@@ -288,6 +351,7 @@ function AttackControls({
                       }
                     >
                       <ActionGlyph name="theft" /> Theft {prime}
+                      <span className="cost-chip">{prime} res</span>
                     </button>
                   ))}
               </div>

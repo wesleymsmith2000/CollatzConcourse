@@ -3,6 +3,7 @@ export * from "./combat";
 export * from "./dice";
 export * from "./game";
 export * from "./math";
+export * from "./race";
 export * from "./resonance";
 export * from "./state";
 export * from "./types";

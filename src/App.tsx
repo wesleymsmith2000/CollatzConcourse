@@ -1,5 +1,6 @@
-import { useMemo, useRef, useState } from "react";
-import { RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Bot, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { chooseHeuristicAction, decisionOwnerId } from "./ai/heuristic";
 import {
   activePlayer,
   applyAction,
@@ -24,32 +25,50 @@ import {
 } from "./engine";
 import { visualAssets } from "./ui/assets";
 import { Jukebox } from "./ui/Jukebox";
+import { RaceTracker } from "./ui/RaceTracker";
 import { useSoundEffects } from "./ui/soundEffects";
 
 function App() {
   const [playerCount, setPlayerCount] = useState(2);
+  const [aiCount, setAiCount] = useState(0);
   const [raceLength, setRaceLength] = useState<RaceLength>("sprint");
   const [state, setState] = useState<GameState>(() => createInitialState(2, undefined, "sprint"));
   const stateRef = useRef(state);
   const soundEffects = useSoundEffects();
   const current = activePlayer(state);
+  const aiPlayerIds = useMemo(
+    () => new Set(state.players.slice(state.players.length - aiCount).map((player) => player.id)),
+    [aiCount, state.players]
+  );
+  const currentDecisionOwnerId = decisionOwnerId(state);
+  const aiThinking = !state.winnerId && aiPlayerIds.has(currentDecisionOwnerId);
 
-  function dispatch(action: Parameters<typeof applyAction>[1]) {
+  function dispatch(action: Parameters<typeof applyAction>[1], source: "human" | "ai" = "human") {
     const previous = stateRef.current;
+    if (source === "human" && isAiSeat(previous, decisionOwnerId(previous), aiCount)) return;
     const next = applyAction(previous, action);
     stateRef.current = next;
     setState(next);
     soundEffects.playTransition(previous, next, action);
   }
 
-  function resetGame(count = playerCount, race = raceLength) {
+  function resetGame(count = playerCount, race = raceLength, bots = Math.min(aiCount, count)) {
     setPlayerCount(count);
+    setAiCount(bots);
     setRaceLength(race);
     const next = createInitialState(count, undefined, race);
     stateRef.current = next;
     setState(next);
     soundEffects.play("arrival");
   }
+
+  useEffect(() => {
+    if (!aiThinking) return;
+    const action = chooseHeuristicAction(state, currentDecisionOwnerId);
+    if (!action) return;
+    const timer = window.setTimeout(() => dispatch(action, "ai"), 650);
+    return () => window.clearTimeout(timer);
+  }, [aiCount, aiThinking, currentDecisionOwnerId, state]);
 
   const canAct = !state.pendingCapture && !state.pendingCombatChoice && !state.forcedTurnEnd && state.phase === "OPTIONAL_ACTIONS";
 
@@ -73,11 +92,23 @@ function App() {
           <select
             aria-label="Player count"
             value={playerCount}
-            onChange={(event) => resetGame(Number(event.target.value))}
+            onChange={(event) => {
+              const count = Number(event.target.value);
+              resetGame(count, raceLength, Math.min(aiCount, count));
+            }}
           >
             <option value={2}>2 players</option>
             <option value={3}>3 players</option>
             <option value={4}>4 players</option>
+          </select>
+          <select
+            aria-label="AI player count"
+            value={aiCount}
+            onChange={(event) => resetGame(playerCount, raceLength, Number(event.target.value))}
+          >
+            {Array.from({ length: playerCount + 1 }, (_, count) => (
+              <option key={count} value={count}>{count} AI {count === 1 ? "pilot" : "pilots"}</option>
+            ))}
           </select>
           <select
             aria-label="Race length"
@@ -123,14 +154,25 @@ function App() {
         </div>
       </section>
 
-      <section className="player-grid">
-        {state.players.map((player, index) => (
+      <section className={`concourse-layout player-count-${state.players.length}`}>
+        <PlayerPanel
+          player={state.players[0]}
+          active={state.players[0].id === current.id}
+          automated={aiPlayerIds.has(state.players[0].id)}
+          index={0}
+          harmonyTarget={state.harmonyTarget}
+          layoutClassName="primary-slot"
+        />
+        <RaceTracker state={state} className="radar-slot" />
+        {state.players.slice(1).map((player, slot) => (
           <PlayerPanel
             key={player.id}
             player={player}
             active={player.id === current.id}
-            index={index}
+            automated={aiPlayerIds.has(player.id)}
+            index={slot + 1}
             harmonyTarget={state.harmonyTarget}
+            layoutClassName={`opponent-slot opponent-slot-${slot + 1}`}
           />
         ))}
       </section>
@@ -138,13 +180,22 @@ function App() {
       <section className="workbench">
         <div className="panel action-panel">
           <h2>Actions</h2>
-          {state.phase === "TURN_START" && (
+          {aiThinking && (
+            <div className="ai-thinking" role="status">
+              <Bot size={20} />
+              <div>
+                <strong>{state.players.find((player) => player.id === currentDecisionOwnerId)?.name} is calculating</strong>
+                <span>Heuristic navigator selecting a legal action</span>
+              </div>
+            </div>
+          )}
+          {state.phase === "TURN_START" && !aiThinking && (
             <button type="button" className="primary" onClick={() => dispatch({ type: "startTurn" })}>
               <ActionGlyph name="roll" /> Start Turn
             </button>
           )}
 
-          {state.pendingCapture && (
+          {state.pendingCapture && !aiThinking && (
             <div className="choice-block">
               <h3>Capture Prime</h3>
               <div className="button-row">
@@ -157,7 +208,7 @@ function App() {
             </div>
           )}
 
-          {state.pendingCombatChoice?.kind === "damage" && (
+          {state.pendingCombatChoice?.kind === "damage" && !aiThinking && (
             <div className="choice-block">
               <h3>Choose Damage Prime</h3>
               <div className="button-row">
@@ -170,7 +221,7 @@ function App() {
             </div>
           )}
 
-          {state.pendingCombatChoice?.kind === "prime-theft" && (
+          {state.pendingCombatChoice?.kind === "prime-theft" && !aiThinking && (
             <div className="choice-block">
               <h3>Steal Captured Prime</h3>
               <div className="button-row">
@@ -183,21 +234,21 @@ function App() {
             </div>
           )}
 
-          {state.forcedTurnEnd && (
+          {state.forcedTurnEnd && !aiThinking && (
             <button type="button" className="primary" onClick={() => dispatch({ type: "endTurn" })}>
               <ActionGlyph name="end" /> End Forced Turn
             </button>
           )}
 
-          {canAct && (
+          {canAct && !aiThinking && (
             <>
               <button type="button" disabled={!legalForcedJump(current)} onClick={() => dispatch({ type: "forcedJump" })}>
                 <ActionGlyph name="jump" /> Forced 3N+1 Jump
                 <span className="cost-chip">{forcedJumpResonanceCost(current.pulse)} res</span>
               </button>
 
-              <div className="choice-block">
-                <h3>Prime-Fueled Modification</h3>
+              <details className="choice-block action-group" open>
+                <summary>Prime-Fueled Modification</summary>
                 <div className="button-row">
                   {legalPulseModifications(current).map((option) => (
                     <button
@@ -216,7 +267,7 @@ function App() {
                     </p>
                   )}
                 </div>
-              </div>
+              </details>
 
               <AttackControls state={state} dispatch={dispatch} />
 
@@ -251,22 +302,29 @@ function App() {
 function PlayerPanel({
   player,
   active,
+  automated,
   index,
-  harmonyTarget
+  harmonyTarget,
+  layoutClassName = ""
 }: {
   player: PlayerState;
   active: boolean;
+  automated: boolean;
   index: number;
   harmonyTarget: number;
+  layoutClassName?: string;
 }) {
   const captured = useMemo(() => distinctPrimes(player.capturedPrimes), [player.capturedPrimes]);
   const factorChoices = availableCapturePrimes(player);
   return (
-    <article className={`player-panel player-${index + 1} ${active ? "active" : ""}`}>
+    <article className={`player-panel player-${index + 1} ${active ? "active" : ""} ${layoutClassName}`.trim()}>
       <header>
         <div className="rank-badge">{index + 1}</div>
         <h2>{player.name}</h2>
-        {active && <span>Active</span>}
+        <div className="player-badges">
+          {automated && <span className="ai-badge"><Bot size={13} /> AI</span>}
+          {active && <span>Active</span>}
+        </div>
       </header>
       <div className="pulse">{player.pulse}</div>
       <dl>
@@ -316,8 +374,8 @@ function AttackControls({
   const opponents = state.players.filter((player) => player.id !== attacker.id);
 
   return (
-    <div className="choice-block">
-      <h3>Attacks</h3>
+    <details className="choice-block action-group" open>
+      <summary>Attacks</summary>
       <div className="attack-list">
         {opponents.map((defender) => {
           const primes = eligibleAttackPrimes(attacker, defender);
@@ -359,12 +417,16 @@ function AttackControls({
           );
         })}
       </div>
-    </div>
+    </details>
   );
 }
 
 function ActionGlyph({ name }: { name: "step" | "jump" | "add" | "subtract" | "capture" | "attack" | "theft" | "roll" | "end" }) {
   return <span className={`action-glyph glyph-${name}`} aria-hidden="true" />;
+}
+
+function isAiSeat(state: GameState, playerId: string, aiCount: number): boolean {
+  return state.players.slice(state.players.length - aiCount).some((player) => player.id === playerId);
 }
 
 export default App;

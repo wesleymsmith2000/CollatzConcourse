@@ -44,6 +44,15 @@
         </section>
 
         <section>
+          <h2>AI Pilots</h2>
+          <p>
+            Use the AI pilot selector before a race to automate any number of seats. AI pilots favor new distinct primes,
+            valuable captures, favorable combat, Prime Theft, and resonance-efficient pulse growth. Their actions use the
+            same legal engine commands as human players and resolve at a visible pace.
+          </p>
+        </section>
+
+        <section>
           <h2>Resources</h2>
           <ul class="rule-list">
             <li><strong>Pulse:</strong> The player's current positive integer position.</li>
@@ -90,6 +99,13 @@
             A player wins at end of turn when they have at least 10 distinct captured prime values and reach the selected
             Harmony target: Sprint 1,000, Run 50,000, or Marathon 1,000,000.
           </div>
+          <p>
+            The Race Vector display plots distinct prime progress horizontally and <code>log2(1 + Harmony)</code>
+            vertically, keeping geometric Harmony growth readable while supporting a zero score. Crossing both green
+            threshold lines moves a player craft into the upper-right victory sector. A translucent vector from each craft
+            points to that player's pulse on the same logarithmic scale, making growth potential and approaching pulse
+            matches easier to compare.
+          </p>
         </section>
 
         <p class="footer">Use this page as the current MVP player reference while playtesting adjusts balance.</p>

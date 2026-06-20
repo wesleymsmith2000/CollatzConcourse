@@ -35,6 +35,7 @@ npm.cmd run build
 - Forced `3N + 1` jumps cost `floor(log2(pulse))` resonance; prime-fueled modifications cost `floor(log2(prime))` resonance.
 - At end of turn, resonance above `floor(log2(owned prime tokens))` decays by 50%, rounded down.
 - Victory requires at least 10 distinct captured prime values and the selected Harmony target: Sprint 1,000, Run 50,000, or Marathon 1,000,000.
+- Any seat can be assigned to the explainable heuristic AI for human-vs-AI or AI-vs-AI playtesting.
 
 ## Architecture Notes
 

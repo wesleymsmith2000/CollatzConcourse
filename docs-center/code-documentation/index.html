@@ -45,7 +45,9 @@
                 <tr><td><code>src/engine/race.ts</code></td><td>Sprint, Run, and Marathon Harmony targets.</td><td>Serializable race configuration.</td></tr>
                 <tr><td><code>src/engine/resonance.ts</code></td><td>Owned-prime threshold and excess-halving rule.</td><td>Isolated so playtest balance can change safely.</td></tr>
                 <tr><td><code>src/ui/soundEffects.ts</code></td><td>Action-to-sound routing, audio caching, and sound-effects mute state.</td><td>Kept in the UI so engine rules remain deterministic.</td></tr>
-                <tr><td><code>src/App.tsx</code></td><td>Local hot-seat UI over engine state.</td><td>Should stay rule-thin.</td></tr>
+                <tr><td><code>src/ui/RaceTracker.tsx</code></td><td>Responsive two-axis race visualization and plot scaling.</td><td>Reads serializable engine state without owning game rules.</td></tr>
+                <tr><td><code>src/ai/heuristic.ts</code></td><td>Decision ownership and explainable heuristic action selection.</td><td>UI-independent policy over the same engine action contract used by humans.</td></tr>
+                <tr><td><code>src/App.tsx</code></td><td>Local hot-seat UI, fixed-seat board layout, and paced AI orchestration.</td><td>Should stay rule-thin.</td></tr>
               </tbody>
             </table>
           </div>
@@ -57,6 +59,8 @@
             <pre class="mermaid">
 flowchart LR
   UI[React UI] --> EngineIndex[src/engine/index.ts]
+  UI --> AI[src/ai/heuristic.ts]
+  AI --> EngineIndex
   EngineIndex --> Game[src/engine/game.ts]
   Game --> Combat[src/engine/combat.ts]
   Game --> Math[src/engine/math.ts]

@@ -19,7 +19,10 @@ export interface PlayerState {
   name: string;
   pulse: number;
   resonance: number;
+  turbulence: number;
   capturedPrimes: PrimeMultiset;
+  primeUsesThisTurn: PrimeMultiset;
+  optionalActionsThisTurn: number;
   usedAttackPrimesThisTurn: number[];
 }
 
@@ -29,10 +32,20 @@ export interface GameEvent {
   message: string;
 }
 
+export interface RaceProgressPoint {
+  turn: number;
+  pulse: number;
+  harmony: number;
+  distinctPrimes: number;
+}
+
 export interface GameState {
   players: PlayerState[];
+  raceHistory: Record<PlayerId, RaceProgressPoint[]>;
   raceLength: RaceLength;
+  primeRaceLength: RaceLength;
   harmonyTarget: number;
+  distinctPrimeTarget: number;
   activePlayerIndex: number;
   phase: TurnPhase;
   turn: number;
@@ -83,6 +96,7 @@ export type GameAction =
   | { type: "capturePrime"; prime: number }
   | { type: "forcedJump"; capturePrime?: number }
   | { type: "modifyPulse"; prime: number; operation: "add" | "subtract"; capturePrime?: number }
+  | { type: "dividePulse"; prime: number }
   | {
       type: "attack";
       defenderId: PlayerId;

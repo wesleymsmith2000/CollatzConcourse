@@ -18,8 +18,8 @@ describe("combat dice", () => {
 
   it("rerolls 2 and 3 until resolved and scores successes minus failures", () => {
     const result = resolveCombat(
-      { id: "a", name: "A", pulse: 2, resonance: 0, capturedPrimes: {}, usedAttackPrimesThisTurn: [] },
-      { id: "d", name: "D", pulse: 6, resonance: 0, capturedPrimes: {}, usedAttackPrimesThisTurn: [] },
+      { id: "a", name: "A", pulse: 2, resonance: 0, turbulence: 0, capturedPrimes: {}, primeUsesThisTurn: {}, optionalActionsThisTurn: 0, usedAttackPrimesThisTurn: [] },
+      { id: "d", name: "D", pulse: 6, resonance: 0, turbulence: 0, capturedPrimes: {}, primeUsesThisTurn: {}, optionalActionsThisTurn: 0, usedAttackPrimesThisTurn: [] },
       createSequenceD6([2, 3, 4, 1])
     );
     expect(result.assault.score).toBe(1);

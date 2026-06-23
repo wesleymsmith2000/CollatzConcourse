@@ -65,7 +65,7 @@ export function formatFactorization(value: number): string {
   const factors = factorMultiset(value);
   const entries = distinctPrimes(factors);
   if (entries.length === 0) return "1";
-  return entries.map((prime) => `${prime}${factors[prime] > 1 ? exponent(factors[prime]) : ""}`).join(" x ");
+  return entries.map((prime) => `${prime}${factors[prime] > 1 ? `^${factors[prime]}` : ""}`).join(" x ");
 }
 
 export function sharedPrimeValues(left: number, right: number): number[] {
@@ -93,23 +93,4 @@ export function floorLog2(value: number): number {
     threshold += 1;
   }
   return threshold;
-}
-
-function exponent(count: number): string {
-  const superscripts: Record<string, string> = {
-    "0": "0",
-    "1": "1",
-    "2": "2",
-    "3": "3",
-    "4": "4",
-    "5": "5",
-    "6": "6",
-    "7": "7",
-    "8": "8",
-    "9": "9"
-  };
-  return String(count)
-    .split("")
-    .map((digit) => superscripts[digit] ?? digit)
-    .join("");
 }

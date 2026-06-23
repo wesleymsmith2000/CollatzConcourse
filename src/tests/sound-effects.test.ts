@@ -14,6 +14,7 @@ describe("sound effect transitions", () => {
     expect(transition({ type: "capturePrime", prime: 2 })).toBe("capture");
     expect(transition({ type: "forcedJump" })).toBe("forcedJump");
     expect(transition({ type: "modifyPulse", prime: 2, operation: "add" })).toBe("modifyPulse");
+    expect(transition({ type: "dividePulse", prime: 2 })).toBe("modifyPulse");
     expect(transition({ type: "endTurn" })).toBe("endTurn");
   });
 

@@ -21,6 +21,10 @@
   box-sizing: border-box;
 }
 
+#root {
+  min-height: 100vh;
+}
+
 body {
   margin: 0;
   background:
@@ -39,6 +43,360 @@ select {
   box-shadow: inset 0 0 0 1px rgba(57, 215, 255, 0.08), 0 0 18px rgba(57, 215, 255, 0.08);
   color: var(--text);
   font: inherit;
+}
+
+.gateway-scene {
+  align-items: center;
+  display: grid;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: clamp(1rem, 5vw, 5rem);
+  position: relative;
+}
+
+.gateway-backdrop {
+  background:
+    linear-gradient(90deg, rgba(5, 7, 12, 0.96) 0%, rgba(5, 7, 12, 0.78) 48%, rgba(5, 7, 12, 0.25) 100%),
+    url("/assets/ShadowVeilCrossingArt.png") center / cover no-repeat;
+  inset: 0;
+  position: absolute;
+}
+
+.gateway-console {
+  background: rgba(5, 10, 17, 0.92);
+  border: 1px solid rgba(57, 215, 255, 0.5);
+  box-shadow: inset 0 0 36px rgba(57, 215, 255, 0.08), 0 0 42px rgba(0, 0, 0, 0.48);
+  display: grid;
+  gap: 1rem;
+  max-width: 38rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-console > header {
+  align-items: center;
+  display: flex;
+  gap: 0.85rem;
+}
+
+.gateway-console h1,
+.hub-heading h1,
+.account-heading h1 {
+  font-size: 3rem;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0.2rem 0 0;
+  text-transform: uppercase;
+}
+
+.gateway-mark {
+  align-items: center;
+  border: 1px solid var(--accent-2);
+  clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
+  color: var(--accent-2);
+  display: flex;
+  height: 3.4rem;
+  justify-content: center;
+  width: 3.4rem;
+}
+
+.gateway-console form {
+  display: grid;
+  gap: 1rem;
+}
+
+.server-selector {
+  border: 0;
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+}
+
+.server-selector legend,
+.gateway-field > span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.server-selector label {
+  align-items: center;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  min-height: 3.65rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.server-selector label.selected {
+  background: rgba(57, 215, 255, 0.08);
+  border-color: var(--accent);
+}
+
+.server-selector input {
+  accent-color: var(--accent);
+}
+
+.server-selector label > svg {
+  color: var(--accent);
+}
+
+.server-selector label span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.server-selector small {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gateway-field {
+  display: grid;
+}
+
+.gateway-field > div {
+  align-items: center;
+  background: rgba(8, 13, 20, 0.94);
+  border: 1px solid var(--line);
+  display: flex;
+  gap: 0.6rem;
+  padding: 0 0.7rem;
+}
+
+.gateway-field svg {
+  color: var(--muted);
+}
+
+.gateway-field input {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  min-height: 2.75rem;
+  min-width: 0;
+  outline: 0;
+  width: 100%;
+}
+
+.gateway-field > div:focus-within {
+  border-color: var(--accent);
+}
+
+.gateway-error {
+  border-left: 3px solid var(--danger);
+  color: #ffb1b1;
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+}
+
+.gateway-console footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  font-size: 0.7rem;
+  justify-content: space-between;
+  padding-top: 0.8rem;
+}
+
+.portal-shell {
+  min-height: 100vh;
+  padding-top: 3.8rem;
+}
+
+.portal-bar {
+  align-items: center;
+  background: rgba(5, 9, 15, 0.97);
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(12rem, 1fr) auto minmax(8rem, 1fr);
+  left: 0;
+  min-height: 3.8rem;
+  padding: 0.55rem 1rem;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 20;
+}
+
+.portal-brand {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  justify-self: start;
+  padding: 0;
+}
+
+.portal-brand > svg {
+  color: var(--accent-2);
+}
+
+.portal-brand span {
+  display: grid;
+  text-align: left;
+}
+
+.portal-brand small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.portal-bar nav {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.portal-bar nav button {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.portal-bar nav button[aria-selected="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.portal-signout {
+  justify-self: end;
+}
+
+.portal-content {
+  margin: 0 auto;
+  max-width: 96rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.hub-heading,
+.account-heading {
+  border-bottom: 1px solid var(--line);
+  padding-block: 1.5rem;
+}
+
+.connection-strip {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1rem;
+  margin-top: 1rem;
+}
+
+.connection-strip svg {
+  color: var(--green);
+}
+
+.connection-strip strong {
+  color: var(--text);
+}
+
+.event-board {
+  display: grid;
+  gap: 0;
+  margin-top: 1.5rem;
+}
+
+.event-entry {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 9rem;
+  padding: 1rem;
+}
+
+.event-entry.live {
+  background: rgba(57, 215, 255, 0.055);
+  border-left: 3px solid var(--accent);
+}
+
+.event-entry.protocol-entry {
+  border-left: 3px solid var(--violet);
+}
+
+.event-symbol {
+  align-items: center;
+  border: 1px solid currentColor;
+  color: var(--accent);
+  display: flex;
+  height: 3.5rem;
+  justify-content: center;
+  width: 3.5rem;
+}
+
+.protocol-entry .event-symbol {
+  color: var(--violet);
+}
+
+.event-entry h2 {
+  font-size: 1.1rem;
+  letter-spacing: 0;
+  margin: 0.2rem 0;
+  text-transform: uppercase;
+}
+
+.event-entry p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.event-state,
+.protocol-chip {
+  color: var(--accent-2);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.protocol-chip {
+  border: 1px solid rgba(182, 108, 255, 0.5);
+  color: var(--violet);
+  padding: 0.45rem 0.6rem;
+}
+
+.account-heading > code {
+  color: var(--accent);
+  display: block;
+  margin-top: 0.7rem;
+  overflow-wrap: anywhere;
+}
+
+.account-ledger {
+  display: grid;
+  margin-top: 1.5rem;
+}
+
+.account-ledger > div {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: auto 8rem minmax(10rem, 0.7fr) minmax(0, 1fr);
+  min-height: 5rem;
+  padding: 0.75rem;
+}
+
+.account-ledger svg {
+  color: var(--accent-2);
+}
+
+.account-ledger span,
+.account-ledger code {
+  color: var(--muted);
+}
+
+.account-ledger code {
+  overflow-wrap: anywhere;
 }
 
 input[type="range"] {
@@ -111,7 +469,8 @@ select {
   background-position: -226px -21px;
 }
 
-.glyph-subtract {
+.glyph-subtract,
+.glyph-divide {
   background-position: -326px -21px;
 }
 
@@ -141,6 +500,26 @@ select {
 .player-grid {
   display: grid;
   gap: 1rem;
+}
+
+.dev-match-toolbar {
+  align-items: center;
+  background: rgba(182, 108, 255, 0.08);
+  border: 1px dashed rgba(182, 108, 255, 0.55);
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.dev-match-toolbar div {
+  display: grid;
+  margin-right: auto;
+}
+
+.dev-match-toolbar span {
+  color: var(--muted);
+  font-size: 0.72rem;
 }
 
 .top-bar {
@@ -216,6 +595,61 @@ select {
   gap: 0.5rem;
 }
 
+.race-setup-stack {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+  min-width: 0;
+}
+
+.compact-jukebox {
+  align-items: center;
+  border-bottom: 1px solid rgba(57, 215, 255, 0.34);
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: minmax(9rem, 1fr) repeat(3, 2.25rem);
+  max-width: 34rem;
+  padding-bottom: 0.4rem;
+  width: 100%;
+}
+
+.compact-jukebox button {
+  align-items: center;
+  display: inline-flex;
+  height: 2.25rem;
+  justify-content: center;
+  padding: 0;
+  width: 2.25rem;
+}
+
+.compact-jukebox .compact-play-button {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.compact-now-playing {
+  align-items: baseline;
+  display: flex;
+  gap: 0.35rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.compact-now-playing span {
+  color: var(--muted);
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.compact-now-playing strong {
+  color: var(--text);
+  font-size: 0.82rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .top-actions .icon-button {
   justify-content: center;
   min-width: 2.5rem;
@@ -258,6 +692,73 @@ dt,
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: auto auto;
+}
+
+.competitive-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-areas:
+    "cockpit viewscreen viewscreen"
+    "actions hand query";
+  grid-template-columns: minmax(17rem, 0.85fr) minmax(24rem, 1.3fr) minmax(17rem, 0.85fr);
+  grid-template-rows: 25rem 28rem;
+}
+
+.cockpit-slot {
+  grid-area: cockpit;
+  height: 25rem;
+}
+
+.viewscreen-slot {
+  grid-area: viewscreen;
+  height: 25rem;
+  margin: 0;
+}
+
+.viewscreen-slot .race-chart-frame {
+  grid-template-rows: minmax(14rem, 1fr) auto;
+}
+
+.viewscreen-slot .race-legend {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.query-slot {
+  display: grid;
+  gap: 0.5rem;
+  grid-area: query;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 28rem;
+  min-width: 0;
+}
+
+.query-heading {
+  align-items: end;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  padding-bottom: 0.35rem;
+}
+
+.query-heading strong {
+  color: var(--accent-2);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.query-player-panel {
+  height: 100%;
+}
+
+.actions-slot {
+  grid-area: actions;
+  height: 28rem;
+}
+
+.event-log-slot {
+  grid-area: hand;
+  height: 28rem;
 }
 
 .primary-slot {
@@ -381,6 +882,42 @@ dt,
   position: absolute;
 }
 
+.winner-route {
+  color: var(--accent);
+  inset: 0;
+  opacity: 0.72;
+  pointer-events: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.winner-route polyline {
+  fill: none;
+  filter: drop-shadow(0 0 3px currentColor);
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.winner-route.player-1 {
+  color: var(--accent-2);
+}
+
+.winner-route.player-2 {
+  color: var(--violet);
+}
+
+.winner-route.player-3 {
+  color: var(--green);
+}
+
+.winner-route.player-4 {
+  color: var(--danger);
+}
+
 .race-grid::before {
   height: 1px;
   left: 0;
@@ -425,17 +962,17 @@ dt,
 }
 
 .prime-threshold {
-  border-left-width: 1px;
-  bottom: 0;
-  left: 80%;
-  top: 0;
-}
-
-.harmony-threshold {
   border-top-width: 1px;
   bottom: 80%;
   left: 0;
   right: 0;
+}
+
+.harmony-threshold {
+  border-left-width: 1px;
+  bottom: 0;
+  left: 80%;
+  top: 0;
 }
 
 .prime-threshold span,
@@ -449,13 +986,13 @@ dt,
 }
 
 .prime-threshold span {
-  bottom: 0.4rem;
-  left: 0.35rem;
+  left: 0.4rem;
+  top: 0.35rem;
 }
 
 .harmony-threshold span {
-  left: 0.4rem;
-  top: 0.35rem;
+  bottom: 0.4rem;
+  left: 0.35rem;
 }
 
 .race-craft {
@@ -474,35 +1011,57 @@ dt,
   z-index: 3;
 }
 
+button.race-craft {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 0;
+  padding: 0;
+}
+
+button.race-craft.selectable {
+  cursor: crosshair;
+}
+
+button.race-craft.selected {
+  filter: drop-shadow(0 0 10px currentColor) brightness(1.35);
+}
+
+button.race-craft:hover:not(:disabled) {
+  border: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 0 9px currentColor);
+}
+
 .pulse-vector {
-  border-left: 1px dashed currentColor;
-  margin-left: var(--marker-x);
-  min-height: 0.45rem;
+  border-top: 1px dashed currentColor;
+  height: 1px;
+  margin-bottom: var(--marker-y);
+  min-width: 0.45rem;
   opacity: 0.42;
   position: absolute;
-  transform: translateX(-50%);
-  width: 1px;
+  transform: translateY(50%);
   z-index: 2;
 }
 
 .pulse-vector::after {
-  border-left: 0.32rem solid transparent;
-  border-right: 0.32rem solid transparent;
+  border-bottom: 0.32rem solid transparent;
+  border-top: 0.32rem solid transparent;
   content: "";
-  left: -0.36rem;
   position: absolute;
+  top: -0.36rem;
 }
 
-.pulse-vector.rising::after {
-  border-bottom: 0.55rem solid currentColor;
-  top: -0.05rem;
-  transform: translateY(-50%);
+.pulse-vector.advancing::after {
+  border-left: 0.55rem solid currentColor;
+  right: -0.05rem;
+  transform: translateX(50%);
 }
 
-.pulse-vector.falling::after {
-  border-top: 0.55rem solid currentColor;
-  bottom: -0.05rem;
-  transform: translateY(50%);
+.pulse-vector.retreating::after {
+  border-right: 0.55rem solid currentColor;
+  left: -0.05rem;
+  transform: translateX(-50%);
 }
 
 .pulse-vector span {
@@ -515,14 +1074,14 @@ dt,
   white-space: nowrap;
 }
 
-.pulse-vector.rising span {
-  left: 0.4rem;
-  top: -0.35rem;
+.pulse-vector.advancing span {
+  right: -0.35rem;
+  top: 0.4rem;
 }
 
-.pulse-vector.falling span {
-  bottom: -0.35rem;
-  left: 0.4rem;
+.pulse-vector.retreating span {
+  left: -0.35rem;
+  top: 0.4rem;
 }
 
 .race-craft::after {
@@ -546,7 +1105,9 @@ dt,
 }
 
 .race-craft.winner {
-  filter: drop-shadow(0 0 12px currentColor) brightness(1.35);
+  filter: drop-shadow(0 0 7px currentColor) brightness(1.15);
+  margin-bottom: 0;
+  margin-left: 0;
 }
 
 .race-craft.player-1,
@@ -608,6 +1169,22 @@ dt,
   font-size: 0.78rem;
   gap: 0.45rem;
   grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+}
+
+button.race-legend-player {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  min-height: 2rem;
+  padding: 0.25rem;
+  text-align: left;
+}
+
+button.race-legend-player:hover:not(:disabled),
+button.race-legend-player.selected {
+  background: rgba(57, 215, 255, 0.06);
+  border-color: currentColor;
+  box-shadow: none;
 }
 
 .race-legend-player i {
@@ -967,6 +1544,12 @@ dd {
   height: 36rem;
 }
 
+.action-panel.actions-slot,
+.log-panel.event-log-slot {
+  height: 100%;
+  min-height: 0;
+}
+
 .log-panel li {
   background: rgba(255, 255, 255, 0.035);
   border-left: 3px solid var(--accent-2);
@@ -1154,6 +1737,33 @@ dd {
   color: var(--accent);
 }
 
+@media (max-width: 1200px) {
+  .competitive-layout {
+    grid-template-areas:
+      "cockpit viewscreen"
+      "actions viewscreen"
+      "query hand";
+    grid-template-columns: minmax(17rem, 0.85fr) minmax(28rem, 1.4fr);
+    grid-template-rows: 25rem 28rem 28rem;
+  }
+
+  .event-log-slot {
+    height: 22rem;
+  }
+
+  .viewscreen-slot {
+    height: 54rem;
+  }
+
+  .viewscreen-slot .race-chart-frame {
+    grid-template-rows: minmax(34rem, 1fr) auto;
+  }
+
+  .viewscreen-slot .race-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .top-bar,
   .workbench,
@@ -1164,6 +1774,14 @@ dd {
   .league-mark,
   .event-mark {
     display: none;
+  }
+
+  .race-setup-stack {
+    justify-items: stretch;
+  }
+
+  .compact-jukebox {
+    max-width: none;
   }
 
   .jukebox-header img,
@@ -1222,6 +1840,103 @@ dd {
 }
 
 @media (max-width: 700px) {
+  .gateway-scene {
+    align-items: end;
+    padding: 0.75rem;
+  }
+
+  .gateway-backdrop {
+    background:
+      linear-gradient(rgba(5, 7, 12, 0.32), rgba(5, 7, 12, 0.94)),
+      url("/assets/ShadowVeilCrossingArt.png") 62% center / cover no-repeat;
+  }
+
+  .gateway-console {
+    max-width: none;
+    width: 100%;
+  }
+
+  .gateway-console h1,
+  .hub-heading h1,
+  .account-heading h1 {
+    font-size: 2rem;
+  }
+
+  .gateway-console footer {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .portal-shell {
+    padding-top: 7.2rem;
+  }
+
+  .portal-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+  }
+
+  .portal-bar nav {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    justify-content: stretch;
+  }
+
+  .portal-bar nav button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .portal-signout {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .event-entry {
+    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .event-entry > button,
+  .event-entry > .protocol-chip {
+    grid-column: 1 / 3;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  .account-ledger > div {
+    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .account-ledger code {
+    grid-column: 2;
+  }
+
+  .competitive-layout {
+    grid-template-areas:
+      "cockpit"
+      "actions"
+      "viewscreen"
+      "query"
+      "hand";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 25rem 28rem auto 28rem 22rem;
+  }
+
+  .viewscreen-slot {
+    height: auto;
+    min-height: 38rem;
+  }
+
+  .viewscreen-slot .race-chart-frame {
+    grid-template-rows: minmax(22rem, 70vw) auto;
+  }
+
+  .viewscreen-slot .race-legend {
+    grid-template-columns: 1fr;
+  }
+
   .concourse-layout {
     grid-template-columns: minmax(0, 1fr);
   }

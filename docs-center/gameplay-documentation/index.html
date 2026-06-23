@@ -18,6 +18,7 @@
           <a href="../code-documentation/index.html">Code Documentation</a>
           <a class="active" href="./index.html">Gameplay Help</a>
           <a href="../playtest/index.html">Playtest Checklist</a>
+          <a href="../architecture/index.html">CCG Architecture</a>
         </nav>
       </aside>
 
@@ -38,7 +39,7 @@
             <li>Roll 1d6 and gain that much resonance.</li>
             <li>Resolve the mandatory Collatz pulse step: even pulses halve, odd pulses become <code>3N + 1</code>.</li>
             <li>Capture one prime value from the new pulse if one is available.</li>
-            <li>Use optional actions: forced jump, pulse modification, normal attack, or Prime Theft.</li>
+            <li>Use optional actions: forced jump, pulse modification, Prime Division, normal attack, or Prime Theft.</li>
             <li>End the turn, apply resonance retention, check victory, and pass to the next player.</li>
           </ol>
         </section>
@@ -46,9 +47,14 @@
         <section>
           <h2>AI Pilots</h2>
           <p>
-            Use the AI pilot selector before a race to automate any number of seats. AI pilots favor new distinct primes,
-            valuable captures, favorable combat, Prime Theft, and resonance-efficient pulse growth. Their actions use the
-            same legal engine commands as human players and resolve at a visible pace.
+            The signed-in account occupies the main cockpit. Local rival seats use AI pilots that favor new distinct primes,
+            valuable captures, favorable combat, Prime Theft, and resonance-efficient pulse growth. Select a rival craft
+            on the Race Vector to load that competitor into the target/query screen and focus attack controls on them.
+          </p>
+          <p>
+            The current heuristic plans divide-by-2 jump loops, growth-oriented odd turn endings, deliberate even rebuild
+            endings, and distinct-prime versus Harmony phases. Difficulty profiles and teaching variants are planned but
+            are not yet selectable.
           </p>
         </section>
 
@@ -58,6 +64,7 @@
             <li><strong>Pulse:</strong> The player's current positive integer position.</li>
             <li><strong>Captured Primes:</strong> A multiset of captured prime factors. Duplicates count for Harmony.</li>
             <li><strong>Resonance:</strong> Spendable energy for forced jumps, pulse modifications, and attacks.</li>
+            <li><strong>Plasma Turbulence:</strong> Persistent instability from repeating the same prime during one turn; its binary log increases every optional-action cost.</li>
             <li><strong>Harmony:</strong> Sum of all captured primes, including duplicates.</li>
           </ul>
         </section>
@@ -67,6 +74,9 @@
           <ul class="rule-list">
             <li>A forced <code>3N + 1</code> jump costs <code>floor(log2(pulse))</code> resonance, calculated before the jump.</li>
             <li>A prime-fueled pulse modification costs <code>floor(log2(prime))</code> resonance and discards that prime token.</li>
+            <li>Prime division sacrifices one captured prime no larger than the pulse, replaces the pulse with the integer quotient, and gains <code>floor(log2(old pulse)) - floor(log2(prime)) + floor(log2(remainder))</code> resonance. Omit the remainder term when it is zero.</li>
+            <li>Each repeated use of a prime in one turn adds plasma turbulence equal to the number of its previous uses that turn. All optional actions add <code>floor(log2(turbulence + 1))</code> to their resonance cost.</li>
+            <li>Plasma turbulence halves at the end of each player's turn, rounded down. A turn with no optional actions halves it a second time.</li>
             <li>At end of turn, count all owned prime tokens, including duplicates. Resonance above <code>floor(log2(token count))</code> decays by 50%, rounded down.</li>
           </ul>
         </section>
@@ -75,7 +85,7 @@
           <h2>Combat</h2>
           <ol class="rule-list">
             <li>An attack requires at least one shared prime value in attacker and defender pulses.</li>
-            <li>The attacker chooses a shared initiating prime and pays resonance equal to that prime.</li>
+            <li>The attacker chooses a shared initiating prime and pays resonance equal to that prime plus the current turbulence surcharge.</li>
             <li>Each prime value may initiate only one attack per turn.</li>
             <li>Assault Harmony Dice count attacker factor occurrences that also appear in the defender pulse.</li>
             <li>Shield Dissonance Dice count defender factor occurrences absent from the attacker pulse.</li>
@@ -96,16 +106,17 @@
         <section>
           <h2>Victory</h2>
           <div class="callout">
-            A player wins at end of turn when they have at least 10 distinct captured prime values and reach the selected
-            Harmony target: Sprint 1,000, Run 50,000, or Marathon 1,000,000.
+            A player wins at end of turn when they reach both selected targets. Distinct-prime climb targets are Foothill 10,
+            Mountain 20, or Everest 40. Harmony distance targets are Sprint 1,000, Run 50,000, or Marathon 1,000,000.
           </div>
           <p>
-            The Race Vector display plots distinct prime progress horizontally and <code>log2(1 + Harmony)</code>
+            The Race Vector display plots <code>log2(1 + Harmony)</code> distance horizontally and distinct-prime elevation
             vertically, keeping geometric Harmony growth readable while supporting a zero score. Crossing both green
             threshold lines moves a player craft into the upper-right victory sector. A translucent vector from each craft
             points to that player's pulse on the same logarithmic scale, making growth potential and approaching pulse
             matches easier to compare.
           </p>
+          <p>After victory, the winning pilot's recorded progress route remains visible on the Race Vector.</p>
         </section>
 
         <p class="footer">Use this page as the current MVP player reference while playtesting adjusts balance.</p>

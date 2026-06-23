@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collatz Concourse CCG Architecture</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="sidebar">
+        <div class="brand"><span>Architecture</span><strong>Collatz Concourse</strong></div>
+        <nav aria-label="Documentation sections">
+          <a href="../index.html">Overview</a>
+          <a href="../code-documentation/index.html">Code Documentation</a>
+          <a href="../gameplay-documentation/index.html">Gameplay Help</a>
+          <a href="../playtest/index.html">Playtest Checklist</a>
+          <a class="active" href="./index.html">CCG Architecture</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <p class="eyebrow">Repository assessment / protocol planning</p>
+          <h1>CCG Architecture Assessment</h1>
+          <p class="lead">
+            Migration plan from the playable local race into a deterministic, replayable, federated card-game platform.
+            This document precedes card zones, cryptographic commitments, proof systems, and consensus work.
+          </p>
+        </section>
+
+        <section>
+          <h2>Current Repository</h2>
+          <ul class="rule-list">
+            <li>The React application renders one mature race engine plus heuristic AI, audio, and a Race Vector display.</li>
+            <li><code>src/engine/</code> remains UI-independent and stores serializable state.</li>
+            <li><code>GameAction</code> is shared by UI and AI, but its injected function-valued dice rollers are not serializable commands.</li>
+            <li>Readable event log entries are stored in state, but they are not canonical protocol events and have no sequence or hash chain.</li>
+            <li>The new Portal separates Gateway, Hub, Race, and Account scenes without moving account logic into the engine.</li>
+            <li><code>src/shared/</code> now contains reusable account contracts plus canonical serialization and hashing foundations.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Primordial Cipher Inventory</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Area</th><th>Reusable Finding</th><th>Decision</th></tr></thead>
+              <tbody>
+                <tr><td>Prime math</td><td>Factorization, multiplicity-aware overlap, and binary-log storage concepts.</td><td>Already adapted into Collatz Concourse pure math modules.</td></tr>
+                <tr><td>Engine contract</td><td>Pure state/action modules consumed by React and heuristic AI.</td><td>Continue this boundary for commands and replay.</td></tr>
+                <tr><td>Network scaffold</td><td>Basic multiplayer state helpers, not an event-sourced or authenticated protocol.</td><td>Use as conceptual reference only.</td></tr>
+                <tr><td>Serialization/replay</td><td>No canonical serializer, state checksum, command log, or replay subsystem found.</td><td>Implement neutral versioned modules in this repository first.</td></tr>
+                <tr><td>Randomness</td><td>Primordial Cipher still contains direct platform randomness.</td><td>Do not reuse; replace with versioned deterministic random inputs.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>Current Turn Loop</h2>
+          <pre><code>TURN_START
+  -&gt; resonance roll
+  -&gt; standard Collatz pulse step
+  -&gt; optional prime capture
+  -&gt; OPTIONAL_ACTIONS
+  -&gt; combat choice or forced turn end
+  -&gt; resonance retention
+  -&gt; victory check
+  -&gt; NEXT_PLAYER</code></pre>
+          <p>
+            Pending capture and combat choices are explicit state. This is a strong base for deterministic commands, but
+            random results must become command data or derived protocol input rather than injected runtime functions.
+          </p>
+        </section>
+
+        <section>
+          <h2>Nondeterminism Audit</h2>
+          <ul class="rule-list">
+            <li><code>src/engine/dice.ts</code>: default <code>d6()</code> calls <code>Math.random()</code>.</li>
+            <li><code>src/engine/game.ts</code>: turn and combat actions use that default when no roller is injected.</li>
+            <li><code>src/ui/Jukebox.tsx</code>: shuffle uses <code>Math.random()</code>; this is presentation-only and outside match validation.</li>
+            <li>Mock account sessions are deterministic local identifiers and explicitly provide no authentication security.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>First Deterministic Refactor</h2>
+          <ol class="rule-list">
+            <li>Define a versioned protocol command containing actor, match, turn, sequence, previous hash, public parameters, and explicit random input references.</li>
+            <li>Separate local UI actions from serializable match commands; remove function values from the protocol boundary.</li>
+            <li>Return typed domain events from validation rather than treating display strings as authoritative events.</li>
+            <li>Add canonical serialization with sorted object keys, integer-only match fields, UTF-8 rules, explicit nulls, and protocol domain separation.</li>
+            <li>Add SHA-256 state/event hashing behind an adapter and replay a command transcript from genesis state.</li>
+            <li>Reject stale hashes, duplicate sequence numbers, wrong actors, and missing deterministic random inputs.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Scene and Service Boundaries</h2>
+          <div class="diagram"><pre class="mermaid">
+flowchart LR
+  Gateway[Gateway Scene] --&gt; AccountAdapter[Account Server Adapter]
+  AccountAdapter --&gt; Mock[Local Mock]
+  AccountAdapter -. future .-&gt; Remote[Remote Credential Service]
+  Gateway --&gt; Hub[Event Hub]
+  Hub --&gt; Race[Race Scene]
+  Hub -. future .-&gt; Deck[Deck Builder]
+  Hub -. future .-&gt; Events[Constructed Events]
+  Race --&gt; Engine[Standalone Race Engine]
+  Engine -. next milestone .-&gt; Protocol[Command / Event / Replay Layer]
+          </pre></div>
+        </section>
+
+        <section>
+          <h2>Competitive Gameplay Scene</h2>
+          <p>
+            <code>assets/UpdatedCCGStyleGameLayoutConcept.png</code> is the target composition for authenticated matches.
+            It replaces the all-player local board with one private player cockpit per screen. A separate all-public board
+            may return later as an AI observation and protocol-debugging scene, but it is not the competitive player view.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Concept Region</th><th>Authority</th><th>Implementation Boundary</th></tr></thead>
+              <tbody>
+                <tr><td>Player cockpit</td><td>Public match state plus local account identity</td><td>Pulse, factors, resonance, Harmony, distinct primes, and captured factors.</td></tr>
+                <tr><td>Pulse route</td><td>Derived public visualization</td><td>Read-only projection from deterministic engine state; never authoritative.</td></tr>
+                <tr><td>Race radar</td><td>Derived public visualization</td><td>All competitors rendered from public progress and pulse projections.</td></tr>
+                <tr><td>Focused opponent</td><td>Public opponent state only</td><td>No hand identity, private deck order, Snare identity, nonce, or private proof witness.</td></tr>
+                <tr><td>Card hand</td><td>Private local zone</td><td>Rendered from authenticated private state and validated through committed hand transitions.</td></tr>
+                <tr><td>Deck / draw / discard</td><td>Public counts; private draw order</td><td>Counts and visible discard are public. Deck order remains committed and private.</td></tr>
+                <tr><td>Devices</td><td>Public installed cards</td><td>Deterministic continuous or automatic effects.</td></tr>
+                <tr><td>Snares</td><td>Public occupied slots; private identities</td><td>Hidden commitments and automatic trigger proofs; no off-turn prompt.</td></tr>
+                <tr><td>Event log</td><td>Public typed events</td><td>Display text derived from the canonical event transcript.</td></tr>
+                <tr><td>Quick actions</td><td>Local commands</td><td>Submit validated commands; UI state never directly mutates match state.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>Per-Screen Privacy Model</h2>
+          <ul class="rule-list">
+            <li>An authenticated account session maps to one match participant and seat credential.</li>
+            <li>A player screen receives public match state plus only that participant's authorized private-zone view.</li>
+            <li>A spectator screen receives public state and proof results but no private hand, deck order, or Snare data.</li>
+            <li>Opponent focus panels are projections of public state, not copies of another player's client state.</li>
+            <li>Local hot-seat mode may reveal all seats for development, but it cannot represent competitive privacy.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Security Limitations</h2>
+          <div class="callout">
+            Current account sessions are local development conveniences. They have no password verification, signatures,
+            ownership attestations, remote revocation, collection commitments, or server trust. They must never be treated
+            as competitive credentials.
+          </div>
+        </section>
+
+        <section>
+          <h2>Hosted Race: Minimum Viable Path</h2>
+          <p>
+            The current all-public race can be hosted before cards, hidden zones, consensus validators, or zero-knowledge
+            proofs. The first online version should use one authoritative service rather than attempting federation early.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Barrier</th><th>Current State</th><th>Required Milestone</th></tr></thead>
+              <tbody>
+                <tr><td>Randomness</td><td>Engine actions accept function-valued rollers and may call <code>Math.random()</code>.</td><td>Explicit seeded or recorded random inputs.</td></tr>
+                <tr><td>Authority</td><td>Each browser owns local React state.</td><td>Server validates commands and broadcasts accepted state/events.</td></tr>
+                <tr><td>Rooms</td><td>Local account plus AI rivals.</td><td>Create/join codes, seats, ready state, spectators, and reconnect tokens.</td></tr>
+                <tr><td>Synchronization</td><td>No network transport or stale-action protection.</td><td>WebSocket snapshots, sequence numbers, idempotency, and state hashes.</td></tr>
+                <tr><td>Identity</td><td>Mock credentials stored in browser local storage.</td><td>Server-issued sessions tied to match participants.</td></tr>
+                <tr><td>Persistence</td><td>Development logs remain client-side.</td><td>Server-side command transcript, snapshots, results, and replay.</td></tr>
+                <tr><td>Reliability</td><td>No disconnect policy.</td><td>Timers, reconnection, abandonment, and deterministic forfeits.</td></tr>
+                <tr><td>Security</td><td>The client is trusted.</td><td>Turn ownership, input validation, rate limits, and ruleset version locks.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>React client
+  -&gt; WebSocket commands
+Authoritative match service
+  -&gt; deterministic Collatz engine
+SQLite/PostgreSQL command log and snapshots</code></pre>
+        </section>
+
+        <section>
+          <h2>Immediate Checkpoint</h2>
+          <p>
+            Local gameplay, heuristic rivals, training-log export, canonical serialization, and hashing foundations are in
+            place. The next implementation milestone is a deterministic command/event/replay layer with reproducible final
+            checksums. Room hosting begins only after replay fidelity is proven.
+          </p>
+        </section>
+
+        <section>
+          <h2>Artwork Planning Gate</h2>
+          <p>
+            <code>CardAndUIDesignStyleConcept.png</code> and <code>CardTurnSystemStyleConcept.png</code> are recorded as
+            planning inputs alongside <code>UpdatedCCGStyleGameLayoutConcept.png</code>. After scene and interaction planning
+            stabilizes, create an explicit asset inventory for server identities, account credentials, event marks, card
+            frames, zones, deck slots, equipment, hidden Snares, proofs, transitions, winner presentation, and status effects
+            before producing final UI artwork.
+          </p>
+        </section>
+
+        <p class="footer">Architecture status: gateway and canonical utility foundations complete; deterministic command validation and replay milestone next.</p>
+      </main>
+    </div>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "dark", securityLevel: "loose" });
+    </script>
+  </body>
+</html>

@@ -7,6 +7,8 @@ import {
   createSequenceD6,
   forcedJumpResonanceCost,
   harmonyScore,
+  legalPrimeDivisions,
+  primeDivisionResonanceGain,
   primeModificationResonanceCost,
   resonanceRetentionThreshold,
   standardPulseStep
@@ -29,6 +31,18 @@ describe("captures", () => {
     expect(captured.players[0].pulse).toBe(4);
     expect(captured.players[0].capturedPrimes).toEqual({ 2: 1 });
     expect(harmonyScore(captured.players[0].capturedPrimes)).toBe(2);
+  });
+
+  it("records public race progress when pulse and victory resources change", () => {
+    let state = createInitialState(2);
+    state = applyAction(state, { type: "startTurn", rollDie: createSequenceD6([4]) });
+    state = applyAction(state, { type: "capturePrime", prime: 2 });
+
+    expect(state.raceHistory[state.players[0].id]).toEqual([
+      { turn: 1, pulse: 1, harmony: 0, distinctPrimes: 0 },
+      { turn: 1, pulse: 4, harmony: 0, distinctPrimes: 0 },
+      { turn: 1, pulse: 4, harmony: 2, distinctPrimes: 1 }
+    ]);
   });
 
   it("no capture is possible from pulse 1", () => {
@@ -127,6 +141,47 @@ describe("pulse modification", () => {
     const modified = applyAction(state, { type: "modifyPulse", prime: 5, operation: "subtract" });
     expect(modified.players[0].pulse).toBe(2);
     expect(modified.players[0].capturedPrimes).toEqual({ 5: 1 });
+  });
+});
+
+describe("prime division", () => {
+  it("sacrifices one prime, replaces the pulse with the quotient, and gains resonance", () => {
+    const base = createInitialState(2);
+    const state = {
+      ...base,
+      phase: "OPTIONAL_ACTIONS" as const,
+      players: [
+        { ...base.players[0], pulse: 14, resonance: 2, capturedPrimes: addPrime(addPrime({}, 5), 5) },
+        base.players[1]
+      ]
+    };
+
+    const divided = applyAction(state, { type: "dividePulse", prime: 5 });
+
+    expect(divided.players[0].pulse).toBe(2);
+    expect(divided.players[0].resonance).toBe(5);
+    expect(divided.players[0].capturedPrimes).toEqual({ 5: 1 });
+    expect(divided.pendingCapture).toBeUndefined();
+  });
+
+  it("omits the remainder log when division is exact", () => {
+    expect(primeDivisionResonanceGain(40, 5)).toBe(3);
+    expect(primeDivisionResonanceGain(14, 5)).toBe(3);
+  });
+
+  it("only allows captured primes no larger than the pulse", () => {
+    const base = createInitialState(2);
+    const player = {
+      ...base.players[0],
+      pulse: 4,
+      capturedPrimes: addPrime(addPrime({}, 2), 5)
+    };
+    expect(legalPrimeDivisions(player)).toEqual([2]);
+
+    const state = { ...base, phase: "OPTIONAL_ACTIONS" as const, players: [player, base.players[1]] };
+    const rejected = applyAction(state, { type: "dividePulse", prime: 3 });
+    expect(rejected.players[0].pulse).toBe(4);
+    expect(rejected.players[0].resonance).toBe(0);
   });
 });
 

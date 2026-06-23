@@ -1,11 +1,12 @@
 import { countAssaultHarmonyDice, countShieldDissonanceDice, sharedPrimeValues } from "./math";
 import { scoreCombatDice } from "./dice";
 import type { CombatResult, DieRoller, PlayerState } from "./types";
+import { turbulenceActionCost } from "./turbulence";
 
 export function eligibleAttackPrimes(attacker: PlayerState, defender: PlayerState): number[] {
   const used = new Set(attacker.usedAttackPrimesThisTurn);
   return sharedPrimeValues(attacker.pulse, defender.pulse).filter(
-    (prime) => !used.has(prime) && attacker.resonance >= prime
+    (prime) => !used.has(prime) && attacker.resonance >= prime + turbulenceActionCost(attacker.turbulence)
   );
 }
 

@@ -18,6 +18,7 @@
           <a class="active" href="./index.html">Code Documentation</a>
           <a href="../gameplay-documentation/index.html">Gameplay Help</a>
           <a href="../playtest/index.html">Playtest Checklist</a>
+          <a href="../architecture/index.html">CCG Architecture</a>
         </nav>
       </aside>
 
@@ -42,12 +43,18 @@
                 <tr><td><code>src/engine/dice.ts</code></td><td>d6 rollers, seeded/sequence test rollers, combat die scoring.</td><td>Uses Primordial Cipher's dependency-injected dice pattern.</td></tr>
                 <tr><td><code>src/engine/game.ts</code></td><td>Action dispatcher, turn flow, captures, optional actions, combat choices, end turn.</td><td>Primary contract for UI and future AI or multiplayer commands.</td></tr>
                 <tr><td><code>src/engine/combat.ts</code></td><td>Attack eligibility, Prime Theft availability, combat roll resolution.</td><td>Preserves repeated prime multiplicities.</td></tr>
-                <tr><td><code>src/engine/race.ts</code></td><td>Sprint, Run, and Marathon Harmony targets.</td><td>Serializable race configuration.</td></tr>
+                <tr><td><code>src/engine/race.ts</code></td><td>Sprint, Run, and Marathon Harmony targets plus Foothill, Mountain, and Everest distinct-prime targets.</td><td>Serializable race configuration.</td></tr>
                 <tr><td><code>src/engine/resonance.ts</code></td><td>Owned-prime threshold and excess-halving rule.</td><td>Isolated so playtest balance can change safely.</td></tr>
+                <tr><td><code>src/engine/turbulence.ts</code></td><td>Repeated-prime accounting, optional-action surcharge, and end-turn smoothing.</td><td>Pure rule helpers shared by engine, UI, and AI.</td></tr>
                 <tr><td><code>src/ui/soundEffects.ts</code></td><td>Action-to-sound routing, audio caching, and sound-effects mute state.</td><td>Kept in the UI so engine rules remain deterministic.</td></tr>
                 <tr><td><code>src/ui/RaceTracker.tsx</code></td><td>Responsive two-axis race visualization and plot scaling.</td><td>Reads serializable engine state without owning game rules.</td></tr>
                 <tr><td><code>src/ai/heuristic.ts</code></td><td>Decision ownership and explainable heuristic action selection.</td><td>UI-independent policy over the same engine action contract used by humans.</td></tr>
-                <tr><td><code>src/App.tsx</code></td><td>Local hot-seat UI, fixed-seat board layout, and paced AI orchestration.</td><td>Should stay rule-thin.</td></tr>
+                <tr><td><code>src/ui/musicLibrary.ts</code></td><td>Build-time discovery and presentation metadata for jukebox tracks.</td><td>New audio files require no manual jukebox registration.</td></tr>
+                <tr><td><code>src/ui/devMatchLogger.ts</code></td><td>Development-only action snapshots, local archive, and JSON export.</td><td>Feeds playtest logs without entering authoritative engine state.</td></tr>
+                <tr><td><code>src/shared/account/</code></td><td>Federated server adapters, session contracts, and session codec.</td><td>Game-neutral extraction target for Primordial Cipher.</td></tr>
+                <tr><td><code>src/shared/protocol/</code></td><td>Canonical serialization, SHA-256 adapter, command/event envelopes, and validation results.</td><td>Domain-separated and independent from Collatz rules.</td></tr>
+                <tr><td><code>src/Portal.tsx</code></td><td>Gateway, Hub, Race, and Account scene orchestration.</td><td>Networking remains behind account adapters.</td></tr>
+                <tr><td><code>src/App.tsx</code></td><td>Account cockpit, selected-rival query, focused action board, and paced local AI orchestration.</td><td>Should stay rule-thin.</td></tr>
               </tbody>
             </table>
           </div>
@@ -65,12 +72,22 @@ flowchart LR
   Game --> Combat[src/engine/combat.ts]
   Game --> Math[src/engine/math.ts]
   Game --> Resonance[src/engine/resonance.ts]
+  Game --> Turbulence[src/engine/turbulence.ts]
   Game --> Collatz[src/engine/collatz.ts]
   Combat --> Dice[src/engine/dice.ts]
   Combat --> Math
   State[src/engine/state.ts] --> Types[src/engine/types.ts]
             </pre>
           </div>
+        </section>
+
+        <section>
+          <h2>Next Milestone: Deterministic Replay</h2>
+          <p>
+            Canonical serialization and hashing are foundations, not yet a replay system. The next refactor replaces
+            function-valued random rollers with explicit protocol inputs, validates sequenced commands, emits typed events,
+            hashes resulting states, and proves that a full transcript reconstructs the same final state from genesis.
+          </p>
         </section>
 
         <section>

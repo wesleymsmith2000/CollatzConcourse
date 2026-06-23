@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { factorize, factorMultiset, floorLog2 } from "../engine";
+import { factorize, factorMultiset, floorLog2, formatFactorization } from "../engine";
 
 describe("prime factorization", () => {
   it("preserves multiplicity", () => {
@@ -8,7 +8,13 @@ describe("prime factorization", () => {
     expect(factorize(4)).toEqual([2, 2]);
     expect(factorize(12)).toEqual([2, 2, 3]);
     expect(factorize(60)).toEqual([2, 2, 3, 5]);
+    expect(factorize(36)).toEqual([2, 2, 3, 3]);
     expect(factorMultiset(12)).toEqual({ 2: 2, 3: 1 });
+  });
+
+  it("formats multiplicity as an explicit exponent", () => {
+    expect(formatFactorization(36)).toBe("2^2 x 3^2");
+    expect(formatFactorization(729)).toBe("3^6");
   });
 
   it("uses integer floor log2 around powers of 2", () => {

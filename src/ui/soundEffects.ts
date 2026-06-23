@@ -33,6 +33,8 @@ export function soundForTransition(previous: GameState, next: GameState, action:
       return "forcedJump";
     case "modifyPulse":
       return "modifyPulse";
+    case "dividePulse":
+      return "modifyPulse";
     case "attack":
       return next.pendingCombatChoice?.victorId === previous.players[previous.activePlayerIndex].id
         ? "attackSuccess"

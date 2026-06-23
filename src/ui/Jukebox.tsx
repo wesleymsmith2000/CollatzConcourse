@@ -11,117 +11,9 @@ import {
   VolumeX
 } from "lucide-react";
 import { visualAssets } from "./assets";
+import { musicTracks as tracks } from "./musicLibrary";
 
-interface Track {
-  id: string;
-  title: string;
-  subtitle: string;
-  file: string;
-  color: "cyan" | "gold" | "violet" | "red" | "green";
-}
-
-const tracks: Track[] = [
-  {
-    id: "echoes",
-    title: "Echoes of Tomorrow",
-    subtitle: "Factorization Suite",
-    file: "/assets/music/EchoesOfTomorrow1.mp3",
-    color: "violet"
-  },
-  {
-    id: "racing",
-    title: "Racing Dreams",
-    subtitle: "Singularity Circuit",
-    file: "/assets/music/RacingDreams1.mp3",
-    color: "cyan"
-  },
-  {
-    id: "turbo",
-    title: "Turbo Groove",
-    subtitle: "Concourse Broadcast",
-    file: "/assets/music/TurboGroove1.mp3",
-    color: "green"
-  },
-  {
-    id: "velocity-1",
-    title: "Velocity Rush I",
-    subtitle: "Prime Lane Anthem",
-    file: "/assets/music/VelocityRush1.mp3",
-    color: "gold"
-  },
-  {
-    id: "velocity-2",
-    title: "Velocity Rush II",
-    subtitle: "Resonance Sprint",
-    file: "/assets/music/VelocityRush2.mp3",
-    color: "red"
-  },
-  {
-    id: "digital-star-hunt",
-    title: "Digital Star Hunt",
-    subtitle: "Prime Signal Pursuit",
-    file: "/assets/music/DigitalStarHunt.mp3",
-    color: "cyan"
-  },
-  {
-    id: "resonance-split",
-    title: "Resonance Split",
-    subtitle: "Bifurcation Broadcast",
-    file: "/assets/music/ResonnaceSplit.mp3",
-    color: "violet"
-  },
-  {
-    id: "crossing-stars",
-    title: "A Chorus of Crossing Stars and Twisting Shadow",
-    subtitle: "Shadow Concourse Suite",
-    file: "/assets/music/A Chorus of Crossing Stars and Twisting Shadow.mp3",
-    color: "gold"
-  },
-  {
-    id: "dying-stars",
-    title: "The Chasm of Dying Stars",
-    subtitle: "Event Horizon Movement",
-    file: "/assets/music/The Chasm of Dying Stars.mp3",
-    color: "red"
-  },
-  {
-    id: "shadow-veil-current",
-    title: "The Shadow Veil Current",
-    subtitle: "Veil Crossing Signal",
-    file: "/assets/music/The Shadow Veil Current.mp3",
-    color: "green"
-  },
-  {
-    id: "shadowed-crossing",
-    title: "The Shadowed Crossing",
-    subtitle: "Twilight Circuit",
-    file: "/assets/music/The Shadowed Crossing.mp3",
-    color: "violet"
-  },
-  {
-    id: "wings-of-the-wake",
-    title: "Wings of the Wake",
-    subtitle: "Concourse Ascension",
-    file: "/assets/music/Wings of the Wake.mp3",
-    color: "cyan"
-  },
-  {
-    id: "yakama-falls-valley",
-    title: "Yakama Falls Valley - The Shilombish Awakens",
-    subtitle: "Valley Run",
-    file: "/assets/music/Yakama Falls Valley - The Shilombish Awakens.mp3",
-    color: "green"
-  },
-  {
-    id: "yakama-ridge-run",
-    title: "Yakama Ridge Run - Eye of the Shilombish",
-    subtitle: "Ridge Run",
-    file: "/assets/music/Yakama Ridge Run - Eye of the Shilombish.mp3",
-    color: "gold"
-  }
-];
-
-export function Jukebox() {
+export function useJukebox() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [trackIndex, setTrackIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -149,13 +41,6 @@ export function Jukebox() {
       audio.pause();
     }
   }, [playing, trackIndex]);
-
-  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
-  const volumeIcon = useMemo(() => {
-    if (muted || volume === 0) return <VolumeX size={16} />;
-    if (volume < 0.5) return <Volume1 size={16} />;
-    return <Volume2 size={16} />;
-  }, [muted, volume]);
 
   function chooseTrack(index: number) {
     setTrackIndex(index);
@@ -192,14 +77,75 @@ export function Jukebox() {
     nextTrack();
   }
 
+  return {
+    audioRef,
+    current,
+    trackIndex,
+    playing,
+    shuffle,
+    repeat,
+    muted,
+    volume,
+    progress,
+    duration,
+    chooseTrack,
+    nextTrack,
+    previousTrack,
+    onEnded,
+    setPlaying,
+    setShuffle,
+    setRepeat,
+    setMuted,
+    setVolume,
+    setProgress,
+    setDuration
+  };
+}
+
+type JukeboxController = ReturnType<typeof useJukebox>;
+
+export function CompactJukebox({ jukebox }: { jukebox: JukeboxController }) {
+  return (
+    <div className="compact-jukebox" aria-label="Compact jukebox controls">
+      <div className="compact-now-playing" title={jukebox.current.title}>
+        <span>Now playing:</span>
+        <strong>{jukebox.current.title}</strong>
+      </div>
+      <button type="button" onClick={jukebox.previousTrack} title="Previous track" aria-label="Previous track">
+        <SkipBack size={16} />
+      </button>
+      <button
+        type="button"
+        className="compact-play-button"
+        onClick={() => jukebox.setPlaying(!jukebox.playing)}
+        title={jukebox.playing ? "Pause" : "Play"}
+        aria-label={jukebox.playing ? "Pause" : "Play"}
+      >
+        {jukebox.playing ? <Pause size={17} /> : <Play size={17} />}
+      </button>
+      <button type="button" onClick={jukebox.nextTrack} title="Next track" aria-label="Next track">
+        <SkipForward size={16} />
+      </button>
+    </div>
+  );
+}
+
+export function Jukebox({ jukebox }: { jukebox: JukeboxController }) {
+  const progressPercent = jukebox.duration > 0 ? (jukebox.progress / jukebox.duration) * 100 : 0;
+  const volumeIcon = useMemo(() => {
+    if (jukebox.muted || jukebox.volume === 0) return <VolumeX size={16} />;
+    if (jukebox.volume < 0.5) return <Volume1 size={16} />;
+    return <Volume2 size={16} />;
+  }, [jukebox.muted, jukebox.volume]);
+
   return (
     <section className="jukebox" aria-label="Quantum jukebox">
       <audio
-        ref={audioRef}
-        src={current.file}
-        onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
-        onTimeUpdate={(event) => setProgress(event.currentTarget.currentTime)}
-        onEnded={onEnded}
+        ref={jukebox.audioRef}
+        src={jukebox.current.file}
+        onLoadedMetadata={(event) => jukebox.setDuration(event.currentTarget.duration || 0)}
+        onTimeUpdate={(event) => jukebox.setProgress(event.currentTarget.currentTime)}
+        onEnded={jukebox.onEnded}
       />
       <div className="jukebox-header">
         <div>
@@ -210,13 +156,13 @@ export function Jukebox() {
       </div>
 
       <div className="now-playing">
-        <div className={`album-mark ${current.color}`} />
+        <div className={`album-mark ${jukebox.current.color}`} />
         <div>
-          <strong>{current.title}</strong>
-          <span>{current.subtitle}</span>
+          <strong>{jukebox.current.title}</strong>
+          <span>{jukebox.current.subtitle}</span>
         </div>
         <div className="track-time">
-          {formatTime(progress)} / {formatTime(duration)}
+          {formatTime(jukebox.progress)} / {formatTime(jukebox.duration)}
         </div>
       </div>
 
@@ -225,22 +171,22 @@ export function Jukebox() {
       </div>
 
       <div className="jukebox-controls">
-        <button type="button" className={shuffle ? "toggle-active" : ""} onClick={() => setShuffle(!shuffle)} title="Shuffle">
+        <button type="button" className={jukebox.shuffle ? "toggle-active" : ""} onClick={() => jukebox.setShuffle(!jukebox.shuffle)} title="Shuffle">
           <Shuffle size={16} />
         </button>
-        <button type="button" onClick={previousTrack} title="Previous track">
+        <button type="button" onClick={jukebox.previousTrack} title="Previous track">
           <SkipBack size={16} />
         </button>
-        <button type="button" className="play-button" onClick={() => setPlaying(!playing)} title={playing ? "Pause" : "Play"}>
-          {playing ? <Pause size={18} /> : <Play size={18} />}
+        <button type="button" className="play-button" onClick={() => jukebox.setPlaying(!jukebox.playing)} title={jukebox.playing ? "Pause" : "Play"}>
+          {jukebox.playing ? <Pause size={18} /> : <Play size={18} />}
         </button>
-        <button type="button" onClick={nextTrack} title="Next track">
+        <button type="button" onClick={jukebox.nextTrack} title="Next track">
           <SkipForward size={16} />
         </button>
-        <button type="button" className={repeat ? "toggle-active" : ""} onClick={() => setRepeat(!repeat)} title="Repeat">
+        <button type="button" className={jukebox.repeat ? "toggle-active" : ""} onClick={() => jukebox.setRepeat(!jukebox.repeat)} title="Repeat">
           <Repeat size={16} />
         </button>
-        <button type="button" onClick={() => setMuted(!muted)} title={muted ? "Unmute" : "Mute"}>
+        <button type="button" onClick={() => jukebox.setMuted(!jukebox.muted)} title={jukebox.muted ? "Unmute" : "Mute"}>
           {volumeIcon}
         </button>
         <input
@@ -249,8 +195,8 @@ export function Jukebox() {
           min="0"
           max="1"
           step="0.01"
-          value={volume}
-          onChange={(event) => setVolume(Number(event.target.value))}
+          value={jukebox.volume}
+          onChange={(event) => jukebox.setVolume(Number(event.target.value))}
         />
       </div>
 
@@ -259,8 +205,8 @@ export function Jukebox() {
           <button
             key={track.id}
             type="button"
-            className={index === trackIndex ? "selected" : ""}
-            onClick={() => chooseTrack(index)}
+            className={index === jukebox.trackIndex ? "selected" : ""}
+            onClick={() => jukebox.chooseTrack(index)}
           >
             <span>{String(index + 1).padStart(2, "0")}</span>
             <i className={`album-dot ${track.color}`} />
